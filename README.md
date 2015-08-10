@@ -36,7 +36,7 @@ driver:
   verify_ssl: true
 ```
 
-Then configure your platforms.  A catalog_id is required for each platform:
+Then configure your platforms. A catalog_id is required for each platform:
 
 ```yaml
 platforms:
@@ -51,14 +51,14 @@ platforms:
 Other options that you can set include:
 
  * **lease_days**: number of days to request for a lease, if your catalog item / blueprint requires it
- * **request_timeout**: amount of time, in seconds, to wait for a vRA request to complete.  Default is 600 seconds.
+ * **request_timeout**: amount of time, in seconds, to wait for a vRA request to complete. Default is 600 seconds.
  * **cpus**: number of CPUs the host should have
  * **memory**: amount of RAM, in MB, the host should have
- * **requested_for**: the vRA login ID to list as the owner of this resource.  Defaults to the vRA username configured in the `driver` section.
- * **subtenant_id**: the Business Group ID to list as the owner.  This is required if the catalog item is a shared/global item; we are unable to determine the subtenant_id from the catalog, and vRA requires it to be set on every request.
- * **private_key_path**: path to the SSH private key to use when logging in.  Defaults to '~/.ssh/id_rsa' or '~/.ssh/id_dsa', preferring the RSA key.  Only applies to instances where SSH transport is used (i.e. does not apply to Windows hosts with the WinRM transport configured).
+ * **requested_for**: the vRA login ID to list as the owner of this resource. Defaults to the vRA username configured in the `driver` section.
+ * **subtenant_id**: the Business Group ID to list as the owner. This is required if the catalog item is a shared/global item; we are unable to determine the subtenant_id from the catalog, and vRA requires it to be set on every request.
+ * **private_key_path**: path to the SSH private key to use when logging in. Defaults to '~/.ssh/id_rsa' or '~/.ssh/id_dsa', preferring the RSA key. Only applies to instances where SSH transport is used (i.e. does not apply to Windows hosts with the WinRM transport configured).
 
-These settings can be set globally under the top-level `driver` section, or they can be set on each platform, which allows you to set globals and then override them.  For example, this configuration would set the CPU count to 1 except on the "large" platform:
+These settings can be set globally under the top-level `driver` section, or they can be set on each platform, which allows you to set globals and then override them. For example, this configuration would set the CPU count to 1 except on the "large" platform:
 
 ```yaml
 driver:
@@ -97,7 +97,7 @@ and limitations under the License.
 
 ## Contributing
 
-We'd love to hear from you if this doesn't work in your vRA environment.  Please log a GitHub issue, or even better, submit a Pull Request with a fix!
+We'd love to hear from you if this doesn't work in your vRA environment. Please log a GitHub issue, or even better, submit a Pull Request with a fix!
 
 1. Fork it ( https://github.com/chef-partners/kitchen-vra/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
