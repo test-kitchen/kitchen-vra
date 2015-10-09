@@ -41,7 +41,8 @@ describe Kitchen::Driver::Vra do
       requested_for: 'override_user@corp.local',
       notes:         'some notes',
       subtenant_id:  '160b473a-0ec9-473d-8156-28dd96c0b6b7',
-      lease_days:    5
+      lease_days:    5,
+      use_dns:       false
     }
   end
 
@@ -102,14 +103,34 @@ describe Kitchen::Driver::Vra do
       expect(state[:resource_id]).to eq('e8706351-cf4c-4c12-acb7-c90cc683b22c')
     end
 
-    describe 'getting the IP address from the server' do
+    describe 'getting the IP address from the server when use_dns is false' do
       context 'when no IP addresses are returned' do
         it 'raises an exception' do
           allow(resource).to receive(:ip_addresses).and_return([])
           expect { driver.create(state) }.to raise_error(RuntimeError)
         end
       end
+      context 'when IP addresses are returned' do
+        it 'sets the IP address as the hostname in the state hash' do
+          driver.create(state)
+          expect(state[:hostname]).to eq('1.2.3.4')
+        end
+      end
+    end
 
+    describe 'getting the IP address from the server when use_dns is true' do
+      context 'when no IP addresses are returned' do
+        let(:config) do
+          {
+            use_dns: true
+          }
+        end
+        it 'returns hostname if use_dns is true' do
+          allow(resource).to receive(:ip_addresses).and_return([])
+          driver.create(state)
+          expect(state[:hostname]).to eq('server1')
+        end
+      end
       context 'when IP addresses are returned' do
         it 'sets the IP address as the hostname in the state hash' do
           driver.create(state)

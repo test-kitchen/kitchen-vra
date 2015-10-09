@@ -50,6 +50,7 @@ module Kitchen
           file if File.exist?(file)
         end.compact.first
       end
+      default_config :use_dns, false
 
       def name
         'vRA'
@@ -60,11 +61,16 @@ module Kitchen
 
         server = request_server
         state[:resource_id] = server.id
-
-        ip_address = server.ip_addresses.first
-        raise 'No IP address returned for the vRA request' if ip_address.nil?
-        state[:hostname] = server.ip_addresses.first
-        state[:ssh_key]  = config[:private_key_path] unless config[:private_key_path].nil?
+        if config[:use_dns]
+          dns_name = server.name
+          raise 'No server name returned for the vRA request' if dns_name.nil?
+          state[:hostname] = server.name
+        else
+          ip_address = server.ip_addresses.first
+          raise 'No IP address returned for the vRA request' if ip_address.nil?
+          state[:hostname] = server.ip_addresses.first
+        end
+        state[:ssh_key] = config[:private_key_path] unless config[:private_key_path].nil?
 
         wait_for_server(state, server)
         info("Server #{server.id} (#{server.name}) ready.")
