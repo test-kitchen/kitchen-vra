@@ -127,27 +127,6 @@ describe Kitchen::Driver::Vra do
       end
     end
 
-    describe 'getting the IP address from the server when use_dns is true' do
-      context 'when no IP addresses are returned' do
-        let(:config) do
-          {
-            use_dns: true
-          }
-        end
-        it 'returns hostname if use_dns is true' do
-          allow(resource).to receive(:ip_addresses).and_return([])
-          driver.create(state)
-          expect(state[:hostname]).to eq('server1')
-        end
-      end
-      context 'when IP addresses are returned' do
-        it 'sets the IP address as the hostname in the state hash' do
-          driver.create(state)
-          expect(state[:hostname]).to eq('1.2.3.4')
-        end
-      end
-    end
-
     it 'waits for the server to be ready' do
       expect(driver).to receive(:wait_for_server)
       driver.create(state)
