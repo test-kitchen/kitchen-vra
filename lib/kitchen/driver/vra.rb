@@ -62,12 +62,10 @@ module Kitchen
         server = request_server
         state[:resource_id] = server.id
         if config[:use_dns]
-          dns_name = server.name
-          raise 'No server name returned for the vRA request' if dns_name.nil?
+          raise 'No server name returned for the vRA request' if server.name.nil?
           state[:hostname] = server.name
         else
-          ip_address = server.ip_addresses.first
-          raise 'No IP address returned for the vRA request' if ip_address.nil?
+          raise 'No IP address returned for the vRA request' if server.ip_addresses.first.nil?
           state[:hostname] = server.ip_addresses.first
         end
         state[:ssh_key] = config[:private_key_path] unless config[:private_key_path].nil?
