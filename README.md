@@ -57,6 +57,7 @@ Other options that you can set include:
  * **requested_for**: the vRA login ID to list as the owner of this resource. Defaults to the vRA username configured in the `driver` section.
  * **subtenant_id**: the Business Group ID to list as the owner. This is required if the catalog item is a shared/global item; we are unable to determine the subtenant_id from the catalog, and vRA requires it to be set on every request.
  * **private_key_path**: path to the SSH private key to use when logging in. Defaults to '~/.ssh/id_rsa' or '~/.ssh/id_dsa', preferring the RSA key. Only applies to instances where SSH transport is used (i.e. does not apply to Windows hosts with the WinRM transport configured).
+ * **use_dns**: Defaults to `false`.  Set to `true` if vRA doesn't manage vm ip addresses.  This will cause kitchen to attempt to connect via hostname.
 
 These settings can be set globally under the top-level `driver` section, or they can be set on each platform, which allows you to set globals and then override them. For example, this configuration would set the CPU count to 1 except on the "large" platform:
 
