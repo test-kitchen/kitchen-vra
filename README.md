@@ -73,13 +73,14 @@ platforms:
       catalog_id: 8a189191-fea6-43eb-981e-ee0fa40f8f57
       extra_parameters:
         provider-mycustompropname: {type: "string",value: "smallvalue"}
+        provider-Vrm.DataCenter.Location: {type: "string",value: "Non-Prod"}
   - name: large
     driver:
       catalog_id: 1d7c6122-18fa-4ed6-bd13-8a33b6c6ed50
       cpus: 2
       extra_parameters:
         provider-mycustompropname: {type: "string",value: "largevalue"}
-        provider-Vrm.DataCenter.Location: {type: "string",value: "Non-Prod"}
+        provider-Vrm.DataCenter.Location: {type: "string",value: "Prod"}
 ```
 
 ## License and Authors
