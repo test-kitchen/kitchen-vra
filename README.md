@@ -58,7 +58,7 @@ Other options that you can set include:
  * **subtenant_id**: the Business Group ID to list as the owner. This is required if the catalog item is a shared/global item; we are unable to determine the subtenant_id from the catalog, and vRA requires it to be set on every request.
  * **private_key_path**: path to the SSH private key to use when logging in. Defaults to '~/.ssh/id_rsa' or '~/.ssh/id_dsa', preferring the RSA key. Only applies to instances where SSH transport is used; i.e., does not apply to Windows hosts with the WinRM transport configured.
  * **use_dns**: Defaults to `false`.  Set to `true` if vRA doesn't manage vm ip addresses.  This will cause kitchen to attempt to connect via hostname.
- * **extra_parameters**: an array of other data to set on a catalog request, most notably custom properties. Allows updates to existing properties on the blueprint as well as the addition of new properties. The vRA REST API expects 'provider-' appended to the front of a property name, while the kitchen driver requires both the data type and set the value; e.g., `provider-mycustompropname: {type: "string",value: "mycustompropval"}`
+ * **extra_parameters**: an array of other data to set on a catalog request, most notably custom properties. Allows updates to existing properties on the blueprint as well as the addition of new properties. The vRA REST API expects 'provider-' appended to the front of a property name, while the kitchen driver requires both the data type and set the value; e.g., set a property named 'mycustompropname' with `provider-mycustompropname: {type: "string",value: "mycustompropval"}`
 
 These settings can be set globally under the top-level `driver` section, or they can be set on each platform, which allows you to set globals and then override them. For example, this configuration would set the CPU count to 1 except on the "large" platform:
 
@@ -71,12 +71,14 @@ platforms:
   - name: small
     driver:
       catalog_id: 8a189191-fea6-43eb-981e-ee0fa40f8f57
+      extra_parameters:
+        provider-mycustompropname: {type: "string",value: "smallvalue"}
   - name: large
     driver:
       catalog_id: 1d7c6122-18fa-4ed6-bd13-8a33b6c6ed50
       cpus: 2
       extra_parameters:
-        provider-mycustompropname: {type: "string",value: "mycustompropval"}
+        provider-mycustompropname: {type: "string",value: "largevalue"}
         provider-Vrm.DataCenter.Location: {type: "string",value: "Non-Prod"}
 ```
 
