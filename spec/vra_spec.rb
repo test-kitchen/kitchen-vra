@@ -90,6 +90,7 @@ describe Kitchen::Driver::Vra do
 
     before do
       allow(driver).to receive(:request_server).and_return(resource)
+      allow(driver).to receive(:sleep_for_server)
       allow(driver).to receive(:wait_for_server)
     end
 
@@ -103,33 +104,55 @@ describe Kitchen::Driver::Vra do
       expect(state[:resource_id]).to eq('e8706351-cf4c-4c12-acb7-c90cc683b22c')
     end
 
-    describe 'setting the hostname in the state hash' do
-      context 'when use_dns is true' do
-        let(:config) { { use_dns: true } }
-        it 'raises an exception if the server name is nil' do
-          allow(resource).to receive(:name).and_return(nil)
-          expect { driver.create(state) }.to raise_error(RuntimeError)
-        end
-        it 'uses the server name as the hostname' do
-          driver.create(state)
-          expect(state[:hostname]).to eq('server1')
-        end
-      end
-      context 'when use_dns is false' do
-        it 'raises an exception if no IP address is available' do
-          allow(resource).to receive(:ip_addresses).and_return([])
-          expect { driver.create(state) }.to raise_error(RuntimeError)
-        end
-        it 'uses the IP address as the hostname' do
-          driver.create(state)
-          expect(state[:hostname]).to eq('1.2.3.4')
-        end
-      end
+    it 'sets the hostname in the state hash' do
+      allow(driver).to receive(:hostname_for).and_return('test_hostname')
+      driver.create(state)
+      expect(state[:hostname]).to eq('test_hostname')
+    end
+
+    it 'sleeps before checking if the server is ready' do
+      expect(driver).to receive(:sleep_for_server)
+      driver.create(state)
     end
 
     it 'waits for the server to be ready' do
       expect(driver).to receive(:wait_for_server)
       driver.create(state)
+    end
+  end
+
+  describe '#hostname_for' do
+    let(:server) do
+      double('server',
+             id: 'test_id',
+             name: 'test_hostname',
+             ip_addresses: [ '1.2.3.4' ],
+             vm?: true)
+    end
+
+    context 'when use_dns is true' do
+      let(:config) { { use_dns: true } }
+
+      it 'raises an exception if the server name is nil' do
+        allow(server).to receive(:name).and_return(nil)
+        expect { driver.hostname_for(server) }.to raise_error(RuntimeError)
+      end
+
+      it 'returns the server name' do
+        expect(driver.hostname_for(server)).to eq('test_hostname')
+      end
+    end
+
+    context 'when use_dns is false' do
+      it 'falls back to the server name if no IP address exists' do
+        allow(server).to receive(:ip_addresses).and_return([])
+        expect(driver).to receive(:warn)
+        expect(driver.hostname_for(server)).to eq('test_hostname')
+      end
+
+      it 'returns the IP address if it exists' do
+        expect(driver.hostname_for(server)).to eq('1.2.3.4')
+      end
     end
   end
 
@@ -204,7 +227,29 @@ describe Kitchen::Driver::Vra do
     end
   end
 
-  describe '#wait_for_server_to_be_ready' do
+  describe '#sleep_for_server' do
+    let(:server) { double('server', id: 'test_id', name: 'test_name') }
+
+    context 'when no sleep value is defined' do
+      let(:config) { { server_ready_sleep_time: nil } }
+
+      it 'does not sleep' do
+        expect(driver).not_to receive(:sleep)
+        driver.sleep_for_server(server)
+      end
+    end
+
+    context 'when a sleep value is defined' do
+      let(:config) { { server_ready_sleep_time: 5 } }
+
+      it 'sleeps' do
+        expect(driver).to receive(:sleep).with(5)
+        driver.sleep_for_server(server)
+      end
+    end
+  end
+
+  describe '#wait_for_server' do
     let(:connection) { instance.transport.connection(state) }
     let(:state)      { {} }
     let(:resource1) do

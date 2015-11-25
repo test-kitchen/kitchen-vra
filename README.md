@@ -52,6 +52,7 @@ Other options that you can set include:
 
  * **lease_days**: number of days to request for a lease, if your catalog item / blueprint requires it
  * **request_timeout**: amount of time, in seconds, to wait for a vRA request to complete. Default is 600 seconds.
+ * **server_ready_sleep_time**: amount of time, in seconds, to wait for Test Kitchen to check to see if the vRA instance is ready. This may be helpful if your provisioning environment has race conditions, such as DNS propagation, that might make Test Kitchen throw an exception. Defaults to nil.
  * **cpus**: number of CPUs the host should have
  * **memory**: amount of RAM, in MB, the host should have
  * **requested_for**: the vRA login ID to list as the owner of this resource. Defaults to the vRA username configured in the `driver` section.
