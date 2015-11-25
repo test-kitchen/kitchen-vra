@@ -103,33 +103,50 @@ describe Kitchen::Driver::Vra do
       expect(state[:resource_id]).to eq('e8706351-cf4c-4c12-acb7-c90cc683b22c')
     end
 
-    describe 'setting the hostname in the state hash' do
-      context 'when use_dns is true' do
-        let(:config) { { use_dns: true } }
-        it 'raises an exception if the server name is nil' do
-          allow(resource).to receive(:name).and_return(nil)
-          expect { driver.create(state) }.to raise_error(RuntimeError)
-        end
-        it 'uses the server name as the hostname' do
-          driver.create(state)
-          expect(state[:hostname]).to eq('server1')
-        end
-      end
-      context 'when use_dns is false' do
-        it 'raises an exception if no IP address is available' do
-          allow(resource).to receive(:ip_addresses).and_return([])
-          expect { driver.create(state) }.to raise_error(RuntimeError)
-        end
-        it 'uses the IP address as the hostname' do
-          driver.create(state)
-          expect(state[:hostname]).to eq('1.2.3.4')
-        end
-      end
+    it 'sets the hostname in the state hash' do
+      allow(driver).to receive(:hostname_for).and_return('test_hostname')
+      driver.create(state)
+      expect(state[:hostname]).to eq('test_hostname')
     end
 
     it 'waits for the server to be ready' do
       expect(driver).to receive(:wait_for_server)
       driver.create(state)
+    end
+  end
+
+  describe '#hostname_for' do
+    let(:server) do
+      double('server',
+             id: 'test_id',
+             name: 'test_hostname',
+             ip_addresses: [ '1.2.3.4' ],
+             vm?: true)
+    end
+
+    context 'when use_dns is true' do
+      let(:config) { { use_dns: true } }
+
+      it 'raises an exception if the server name is nil' do
+        allow(server).to receive(:name).and_return(nil)
+        expect { driver.hostname_for(server) }.to raise_error(RuntimeError)
+      end
+
+      it 'returns the server name' do
+        expect(driver.hostname_for(server)).to eq('test_hostname')
+      end
+    end
+
+    context 'when use_dns is false' do
+      it 'falls back to the server name if no IP address exists' do
+        allow(server).to receive(:ip_addresses).and_return([])
+        expect(driver).to receive(:warn)
+        expect(driver.hostname_for(server)).to eq('test_hostname')
+      end
+
+      it 'returns the IP address if it exists' do
+        expect(driver.hostname_for(server)).to eq('1.2.3.4')
+      end
     end
   end
 
@@ -204,12 +221,12 @@ describe Kitchen::Driver::Vra do
     end
   end
 
-  describe '#wait_for_server_to_be_ready' do
+  describe '#wait_for_server' do
     let(:connection) { instance.transport.connection(state) }
     let(:state)      { {} }
     let(:resource1) do
       double('server1',
-             id: 'e8706351-cf4c-4c12-acb7-c90cc683b22c',
+             id: 'test_id',
              name: 'server1',
              ip_addresses: [ '1.2.3.4' ],
              vm?: true)
@@ -217,6 +234,9 @@ describe Kitchen::Driver::Vra do
 
     before do
       allow(transport).to receive(:connection).and_return(connection)
+      allow(driver).to receive(:sleep)
+      allow(driver).to receive(:warn)
+      allow(driver).to receive(:error)
     end
 
     it 'waits for the server to be ready' do
@@ -224,10 +244,59 @@ describe Kitchen::Driver::Vra do
       driver.wait_for_server(state, resource1)
     end
 
-    it 'destroys the server and raises an exception if it fails to become ready' do
-      allow(connection).to receive(:wait_until_ready).and_raise(Timeout::Error)
-      expect(driver).to receive(:destroy).with(state)
-      expect { driver.wait_for_server(state, resource1) }.to raise_error(Timeout::Error)
+    context 'when an exception is caught and retries is 0' do
+      let(:config) { { server_ready_retries: 0 } }
+
+      it 'does not sleep and raises an exception' do
+        allow(connection).to receive(:wait_until_ready).and_raise(Timeout::Error)
+        expect(driver).not_to receive(:sleep)
+        expect(driver).to receive(:error).with('Retries exceeded. Destroying server...')
+        expect { driver.wait_for_server(state, resource1) }.to raise_error(Timeout::Error)
+      end
+    end
+
+    context 'when retries is 1 and it errors out twice' do
+      let(:config) { { server_ready_retries: 1 } }
+
+      it 'displays a warning, sleeps once, retries, errors, destroys, and raises' do
+        expect(connection).to receive(:wait_until_ready).twice.and_raise(Timeout::Error)
+        expect(driver).to receive(:warn).once.with('Sleeping 2 seconds and retrying...')
+        expect(driver).to receive(:sleep).once.with(2)
+        expect(driver).to receive(:error).with('Retries exceeded. Destroying server...')
+        expect(driver).to receive(:destroy).with(state)
+        expect { driver.wait_for_server(state, resource1) }.to raise_error(Timeout::Error)
+      end
+    end
+
+    context 'when retries is 2 and it errors out all 3 times' do
+      let(:config) { { server_ready_retries: 2 } }
+
+      it 'displays 2 warnings, sleeps twice, retries, errors, destroys, and raises' do
+        expect(connection).to receive(:wait_until_ready).exactly(3).times.and_raise(Timeout::Error)
+        expect(driver).to receive(:warn).once.with('Sleeping 2 seconds and retrying...')
+        expect(driver).to receive(:warn).once.with('Sleeping 4 seconds and retrying...')
+        expect(driver).to receive(:sleep).once.with(2)
+        expect(driver).to receive(:sleep).once.with(4)
+        expect(driver).to receive(:error).with('Retries exceeded. Destroying server...')
+        expect(driver).to receive(:destroy).with(state)
+        expect { driver.wait_for_server(state, resource1) }.to raise_error(Timeout::Error)
+      end
+    end
+
+    context 'when retries is 5, it errors out the first 2 tries, but works on the 3rd' do
+      let(:config) { { server_ready_retries: 5 } }
+
+      it 'displays 2 warnings, sleeps twice, retries, but does not destroy or raise' do
+        expect(connection).to receive(:wait_until_ready).twice.and_raise(Timeout::Error)
+        expect(connection).to receive(:wait_until_ready).once.and_return(true)
+        expect(driver).to receive(:warn).once.with('Sleeping 2 seconds and retrying...')
+        expect(driver).to receive(:warn).once.with('Sleeping 4 seconds and retrying...')
+        expect(driver).to receive(:sleep).once.with(2)
+        expect(driver).to receive(:sleep).once.with(4)
+        expect(driver).not_to receive(:error)
+        expect(driver).not_to receive(:destroy)
+        expect { driver.wait_for_server(state, resource1) }.not_to raise_error
+      end
     end
   end
 
