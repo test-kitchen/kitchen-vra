@@ -22,7 +22,7 @@ require_relative 'vra_version'
 
 module Kitchen
   module Driver
-    class Vra < Kitchen::Driver::Base
+    class Vra < Kitchen::Driver::Base # rubocop:disable Metrics/ClassLength
       kitchen_driver_api_version 2
       plugin_version Kitchen::Driver::VRA_VERSION
 
@@ -36,6 +36,7 @@ module Kitchen
       default_config :verify_ssl, true
       default_config :request_timeout, 600
       default_config :request_refresh_rate, 2
+      default_config :server_ready_retries, 1
       default_config :cpus, 1
       default_config :memory, 1024
       default_config :requested_for do |driver|
@@ -61,17 +62,26 @@ module Kitchen
 
         server = request_server
         state[:resource_id] = server.id
-        if config[:use_dns]
-          raise 'No server name returned for the vRA request' if server.name.nil?
-          state[:hostname] = server.name
-        else
-          raise 'No IP address returned for the vRA request' if server.ip_addresses.first.nil?
-          state[:hostname] = server.ip_addresses.first
-        end
-        state[:ssh_key] = config[:private_key_path] unless config[:private_key_path].nil?
+        state[:hostname]    = hostname_for(server)
+        state[:ssh_key]     = config[:private_key_path] unless config[:private_key_path].nil?
 
         wait_for_server(state, server)
         info("Server #{server.id} (#{server.name}) ready.")
+      end
+
+      def hostname_for(server)
+        if config[:use_dns]
+          raise 'No server name returned for the vRA request' if server.name.nil?
+          return server.name
+        end
+
+        ip_address = server.ip_addresses.first
+        if ip_address.nil?
+          warn("Server #{server.id} has no IP address. Falling back to server name (#{server.name})...")
+          server.name
+        else
+          ip_address
+        end
       end
 
       def request_server
@@ -91,12 +101,27 @@ module Kitchen
 
       def wait_for_server(state, server)
         info("Server #{server.id} (#{server.name}) created. Waiting until ready...")
+
+        try = 0
+        sleep_time = 1
+
         begin
           instance.transport.connection(state).wait_until_ready
-        rescue
-          error("Server #{server.id} (#{server.name}) not reachable. Destroying server...")
-          destroy(state)
-          raise
+        rescue => e
+          warn("Server #{server.id} (#{server.name}) not reachable: #{e.class} -- #{e.message}")
+
+          try += 1
+          sleep_time *= 2
+
+          if try > config[:server_ready_retries]
+            error('Retries exceeded. Destroying server...')
+            destroy(state)
+            raise
+          else
+            warn("Sleeping #{sleep_time} seconds and retrying...")
+            sleep sleep_time
+            retry
+          end
         end
       end
 

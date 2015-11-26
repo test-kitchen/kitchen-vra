@@ -52,6 +52,7 @@ Other options that you can set include:
 
  * **lease_days**: number of days to request for a lease, if your catalog item / blueprint requires it
  * **request_timeout**: amount of time, in seconds, to wait for a vRA request to complete. Default is 600 seconds.
+ * **server_ready_retries**: Number of times to retry the "waiting for server to be ready" check. In some cases, this will error out immediately due to DNS propagation issues, etc. Setting this to a number greater than 0 will retry the `wait_until_ready` method with a growing sleep in between each attempt. Defaults to 1. Set to 0 to disable any retrying of the `wait_until_ready` method.
  * **cpus**: number of CPUs the host should have
  * **memory**: amount of RAM, in MB, the host should have
  * **requested_for**: the vRA login ID to list as the owner of this resource. Defaults to the vRA username configured in the `driver` section.
