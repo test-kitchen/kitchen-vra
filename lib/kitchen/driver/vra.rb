@@ -103,7 +103,7 @@ module Kitchen
         info("Server #{server.id} (#{server.name}) created. Waiting until ready...")
 
         try = 0
-        sleep_time = 1
+        sleep_time = 0
 
         begin
           instance.transport.connection(state).wait_until_ready
@@ -111,7 +111,7 @@ module Kitchen
           warn("Server #{server.id} (#{server.name}) not reachable: #{e.class} -- #{e.message}")
 
           try += 1
-          sleep_time *= 2
+          sleep_time += 5 if sleep_time < 30
 
           if try > config[:server_ready_retries]
             error('Retries exceeded. Destroying server...')

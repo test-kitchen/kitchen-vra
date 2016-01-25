@@ -260,8 +260,8 @@ describe Kitchen::Driver::Vra do
 
       it 'displays a warning, sleeps once, retries, errors, destroys, and raises' do
         expect(connection).to receive(:wait_until_ready).twice.and_raise(Timeout::Error)
-        expect(driver).to receive(:warn).once.with('Sleeping 2 seconds and retrying...')
-        expect(driver).to receive(:sleep).once.with(2)
+        expect(driver).to receive(:warn).once.with('Sleeping 5 seconds and retrying...')
+        expect(driver).to receive(:sleep).once.with(5)
         expect(driver).to receive(:error).with('Retries exceeded. Destroying server...')
         expect(driver).to receive(:destroy).with(state)
         expect { driver.wait_for_server(state, resource1) }.to raise_error(Timeout::Error)
@@ -273,10 +273,10 @@ describe Kitchen::Driver::Vra do
 
       it 'displays 2 warnings, sleeps twice, retries, errors, destroys, and raises' do
         expect(connection).to receive(:wait_until_ready).exactly(3).times.and_raise(Timeout::Error)
-        expect(driver).to receive(:warn).once.with('Sleeping 2 seconds and retrying...')
-        expect(driver).to receive(:warn).once.with('Sleeping 4 seconds and retrying...')
-        expect(driver).to receive(:sleep).once.with(2)
-        expect(driver).to receive(:sleep).once.with(4)
+        expect(driver).to receive(:warn).once.with('Sleeping 5 seconds and retrying...')
+        expect(driver).to receive(:warn).once.with('Sleeping 10 seconds and retrying...')
+        expect(driver).to receive(:sleep).once.with(5)
+        expect(driver).to receive(:sleep).once.with(10)
         expect(driver).to receive(:error).with('Retries exceeded. Destroying server...')
         expect(driver).to receive(:destroy).with(state)
         expect { driver.wait_for_server(state, resource1) }.to raise_error(Timeout::Error)
@@ -289,13 +289,28 @@ describe Kitchen::Driver::Vra do
       it 'displays 2 warnings, sleeps twice, retries, but does not destroy or raise' do
         expect(connection).to receive(:wait_until_ready).twice.and_raise(Timeout::Error)
         expect(connection).to receive(:wait_until_ready).once.and_return(true)
-        expect(driver).to receive(:warn).once.with('Sleeping 2 seconds and retrying...')
-        expect(driver).to receive(:warn).once.with('Sleeping 4 seconds and retrying...')
-        expect(driver).to receive(:sleep).once.with(2)
-        expect(driver).to receive(:sleep).once.with(4)
+        expect(driver).to receive(:warn).once.with('Sleeping 5 seconds and retrying...')
+        expect(driver).to receive(:warn).once.with('Sleeping 10 seconds and retrying...')
+        expect(driver).to receive(:sleep).once.with(5)
+        expect(driver).to receive(:sleep).once.with(10)
         expect(driver).not_to receive(:error)
         expect(driver).not_to receive(:destroy)
         expect { driver.wait_for_server(state, resource1) }.not_to raise_error
+      end
+    end
+
+    context 'when retries is 7, always erroring' do
+      let(:config) { { server_ready_retries: 8 } }
+
+      it 'caps the delays at 30 seconds' do
+        expect(connection).to receive(:wait_until_ready).exactly(9).times.and_raise(Timeout::Error)
+        expect(driver).to receive(:sleep).once.with(5)
+        expect(driver).to receive(:sleep).once.with(10)
+        expect(driver).to receive(:sleep).once.with(15)
+        expect(driver).to receive(:sleep).once.with(20)
+        expect(driver).to receive(:sleep).once.with(25)
+        expect(driver).to receive(:sleep).exactly(3).times.with(30)
+        expect { driver.wait_for_server(state, resource1) }.to raise_error(Timeout::Error)
       end
     end
   end
