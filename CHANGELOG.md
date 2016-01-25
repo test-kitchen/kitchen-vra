@@ -1,5 +1,8 @@
 # kitchen-vra Changelog
 
+## v1.3.0 (2016-01-25)
+* [pr#10](https://github.com/chef-partners/kitchen-vra/pull/10) Capping the server wait_until_ready retry growth at 30 seconds.
+
 ## v1.2.0 (2015-11-25)
 * [pr#7](https://github.com/chef-partners/kitchen-vra/pull/7) Added retry logic for wait_until_ready in cases where Test Kitchen would unwind (such as DNS issues). Added fallback logic for when a host has no IP address, complimenting the `use_dns` parameter.
 
