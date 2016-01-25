@@ -18,6 +18,6 @@
 
 module Kitchen
   module Driver
-    VRA_VERSION = '1.2.0'
+    VRA_VERSION = '1.2.0'.freeze
   end
 end
