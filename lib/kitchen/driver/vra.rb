@@ -94,7 +94,7 @@ module Kitchen
 
         servers = submitted_request.resources.select(&:vm?)
         raise 'The vRA request created more than one server. The catalog blueprint should only return one.' if servers.size > 1
-        raise 'the vRA request did not create any servers.' if servers.size == 0
+        raise 'the vRA request did not create any servers.' if servers.empty?
 
         servers.first
       end
