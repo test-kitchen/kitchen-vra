@@ -13,7 +13,12 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/chef-partners/kitchen-vra'
   spec.license       = 'Apache 2.0'
 
-  spec.files         = `git ls-files -z`.split("\x0")
+  file_list = if system('git rev-parse --git-dir 2>/dev/null')
+                `git ls-files -z`.split("\x0")
+              else
+                Dir['**/*']
+              end
+  spec.files         = file_list
   spec.executables   = []
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
