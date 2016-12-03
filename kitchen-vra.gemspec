@@ -18,8 +18,8 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'test-kitchen', '~> 1.4', '>= 1.4.1'
-  spec.add_dependency 'vmware-vra',   '~> 1.0'
+  spec.add_dependency 'test-kitchen'
+  spec.add_dependency 'vmware-vra',   '~> 2.0'
 
   spec.add_development_dependency 'bundler',   '~> 1.7'
   spec.add_development_dependency 'rake',      '~> 10.0'
@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'simplecov', '~> 0.10'
   spec.add_development_dependency 'webmock',   '~> 1.21'
   spec.add_development_dependency 'rubocop',   '~> 0.35'
+  spec.add_development_dependency 'github_changelog_generator'
 end
