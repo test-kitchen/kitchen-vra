@@ -18,8 +18,13 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
+<<<<<<< Updated upstream
   spec.add_dependency 'test-kitchen', '~> 1.4', '>= 1.4.1'
   spec.add_dependency 'vmware-vra',   '~> 1.0'
+=======
+  spec.add_dependency 'test-kitchen'
+  spec.add_dependency 'vmware-vra',   '~> 2'
+>>>>>>> Stashed changes
 
   spec.add_development_dependency 'bundler',   '~> 1.7'
   spec.add_development_dependency 'rake',      '~> 10.0'
