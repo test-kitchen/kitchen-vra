@@ -52,6 +52,7 @@ module Kitchen
         end.compact.first
       end
       default_config :use_dns, false
+      default_config :dns_suffix, nil
 
       def name
         'vRA'
@@ -72,7 +73,7 @@ module Kitchen
       def hostname_for(server)
         if config[:use_dns]
           raise 'No server name returned for the vRA request' if server.name.nil?
-          return server.name
+          return config[:dns_suffix] ? "#{server.name}.#{config[:dns_suffix]}" : server.name
         end
 
         ip_address = server.ip_addresses.first
