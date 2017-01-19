@@ -22,7 +22,7 @@ require 'kitchen/provisioner/dummy'
 require 'kitchen/transport/dummy'
 require 'kitchen/verifier/dummy'
 
-describe Kitchen::Driver::Vra do
+describe Kitchen::Driver::Vra do # rubocop:disable Metrics/MethodLength
   let(:logged_output) { StringIO.new }
   let(:logger)        { Logger.new(logged_output) }
   let(:platform)      { Kitchen::Platform.new(name: 'fake_platform') }
@@ -51,8 +51,7 @@ describe Kitchen::Driver::Vra do
                     logger:    logger,
                     transport: transport,
                     platform:  platform,
-                    to_str:    'instance_str'
-                   )
+                    to_str:    'instance_str')
   end
 
   before do
@@ -69,7 +68,7 @@ describe Kitchen::Driver::Vra do
     end
   end
 
-  describe '#create' do
+  describe '#create' do # rubocop:disable Metrics/MethodLength
     context 'when the server is already created' do
       let(:state) { { resource_id: '48959518-6a0d-46e1-8415-3749696b65f4' } }
 
@@ -115,7 +114,7 @@ describe Kitchen::Driver::Vra do
     end
   end
 
-  describe '#hostname_for' do
+  describe '#hostname_for' do # rubocop:disable Metrics/MethodLength
     let(:server) do
       double('server',
              id: 'test_id',
@@ -163,7 +162,7 @@ describe Kitchen::Driver::Vra do
     end
   end
 
-  describe '#request_server' do
+  describe '#request_server' do # rubocop:disable Metrics/MethodLength
     let(:submitted_request) { double('submitted_request') }
     let(:catalog_request)   { double('catalog_request') }
     let(:resource1) do
@@ -234,7 +233,7 @@ describe Kitchen::Driver::Vra do
     end
   end
 
-  describe '#wait_for_server' do
+  describe '#wait_for_server' do # rubocop:disable Metrics/MethodLength
     let(:connection) { instance.transport.connection(state) }
     let(:state)      { {} }
     let(:resource1) do
@@ -328,7 +327,7 @@ describe Kitchen::Driver::Vra do
     end
   end
 
-  describe '#destroy' do
+  describe '#destroy' do # rubocop:disable Metrics/MethodLength
     let(:resource_id)     { '8c1a833a-5844-4100-b58c-9cab3543c958' }
     let(:state)           { { resource_id: resource_id } }
     let(:vra_client)      { double('vra_client') }
@@ -391,7 +390,7 @@ describe Kitchen::Driver::Vra do
     end
   end
 
-  describe '#catalog_request' do
+  describe '#catalog_request' do # rubocop:disable Metrics/MethodLength
     let(:catalog_request) { double('catalog_request') }
     let(:vra_client)      { double('vra_client') }
     let(:catalog)         { double('catalog') }
@@ -452,8 +451,7 @@ describe Kitchen::Driver::Vra do
           cpus:          2,
           memory:        2048,
           extra_parameters: { 'key1' => { type: 'string', value: 'value1' },
-                              'key2' => { type: 'integer', value: 123 }
-                            }
+                              'key2' => { type: 'integer', value: 123 } }
         }
       end
 
@@ -476,7 +474,7 @@ describe Kitchen::Driver::Vra do
     end
   end
 
-  describe '#wait_for_request' do
+  describe '#wait_for_request' do # rubocop:disable Metrics/MethodLength
     before do
       # don't actually sleep
       allow(driver).to receive(:sleep)
