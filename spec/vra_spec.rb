@@ -22,7 +22,6 @@ require 'kitchen/provisioner/dummy'
 require 'kitchen/transport/dummy'
 require 'kitchen/verifier/dummy'
 
-# rubocop:disable Metrics/MethodLength
 describe Kitchen::Driver::Vra do
   let(:logged_output) { StringIO.new }
   let(:logger)        { Logger.new(logged_output) }
