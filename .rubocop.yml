@@ -5,6 +5,8 @@ Metrics/ClassLength:
 Metrics/LineLength:
   Max: 130
 Metrics/MethodLength:
+  Exclude:
+    - spec/vra_spec.rb
   Max: 25
 Style/Documentation:
   Enabled: false
