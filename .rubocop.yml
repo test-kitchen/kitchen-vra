@@ -14,3 +14,6 @@ Style/SignalException:
   Enabled: false
 Style/SpaceInsideBrackets:
   Enabled: false
+Metrics/BlockLength:
+  Exclude:
+    - "**/*_spec.rb"
