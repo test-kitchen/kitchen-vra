@@ -124,6 +124,19 @@ describe Kitchen::Driver::Vra do
              vm?: true)
     end
 
+    context 'when use_dns is true and dns_suffix is defined' do
+      let(:config) do
+        {
+          use_dns:      true,
+          dns_suffix:   'my.com'
+        }
+      end
+
+      it 'returns the server name with suffix appended' do
+        expect(driver.hostname_for(server)).to eq('test_hostname.my.com')
+      end
+    end
+
     context 'when use_dns is true' do
       let(:config) { { use_dns: true } }
 
