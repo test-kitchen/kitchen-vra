@@ -1,7 +1,20 @@
 # Change Log
 
-## [v2.0.0](https://github.com/chef-partners/kitchen-vra/tree/v2.0.0)
+## [Unreleased](https://github.com/chef-partners/kitchen-vra/tree/HEAD)
 
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.0.0...HEAD)
+
+**Closed issues:**
+
+- extra\_parameters  not passing correctly for vRA version  7.X [\#20](https://github.com/chef-partners/kitchen-vra/issues/20)
+- Failure on notes config setting [\#15](https://github.com/chef-partners/kitchen-vra/issues/15)
+
+**Merged pull requests:**
+
+- Bump version for release [\#21](https://github.com/chef-partners/kitchen-vra/pull/21) ([jjasghar](https://github.com/jjasghar))
+- Add support for a DNS suffix appended to server.name [\#19](https://github.com/chef-partners/kitchen-vra/pull/19) ([jeremymv2](https://github.com/jeremymv2))
+
+## [v2.0.0](https://github.com/chef-partners/kitchen-vra/tree/v2.0.0) (2016-12-15)
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v1.3.0...v2.0.0)
 
 **Closed issues:**
