@@ -51,8 +51,7 @@ describe Kitchen::Driver::Vra do
                     logger:    logger,
                     transport: transport,
                     platform:  platform,
-                    to_str:    'instance_str'
-                   )
+                    to_str:    'instance_str')
   end
 
   before do
@@ -122,6 +121,19 @@ describe Kitchen::Driver::Vra do
              name: 'test_hostname',
              ip_addresses: [ '1.2.3.4' ],
              vm?: true)
+    end
+
+    context 'when use_dns is true and dns_suffix is defined' do
+      let(:config) do
+        {
+          use_dns:      true,
+          dns_suffix:   'my.com'
+        }
+      end
+
+      it 'returns the server name with suffix appended' do
+        expect(driver.hostname_for(server)).to eq('test_hostname.my.com')
+      end
     end
 
     context 'when use_dns is true' do
@@ -439,8 +451,7 @@ describe Kitchen::Driver::Vra do
           cpus:          2,
           memory:        2048,
           extra_parameters: { 'key1' => { type: 'string', value: 'value1' },
-                              'key2' => { type: 'integer', value: 123 }
-                            }
+                              'key2' => { type: 'integer', value: 123 } }
         }
       end
 

@@ -1,3 +1,5 @@
+AllCops:
+  DisplayCopNames: true
 Metrics/AbcSize:
   Max: 50
 Metrics/ClassLength:
@@ -12,3 +14,6 @@ Style/SignalException:
   Enabled: false
 Style/SpaceInsideBrackets:
   Enabled: false
+Metrics/BlockLength:
+  Exclude:
+    - "**/*_spec.rb"
