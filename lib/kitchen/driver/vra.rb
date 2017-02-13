@@ -17,6 +17,10 @@
 #
 
 require 'kitchen'
+require 'highline/import'
+require 'openssl'
+require 'base64'
+require 'digest/sha1'
 require 'vra'
 require_relative 'vra_version'
 
@@ -26,8 +30,8 @@ module Kitchen
       kitchen_driver_api_version 2
       plugin_version Kitchen::Driver::VRA_VERSION
 
-      required_config :username
-      required_config :password
+      default_config :username, ''
+      default_config :password, ''
       required_config :base_url
       required_config :tenant
       required_config :catalog_id
@@ -44,6 +48,7 @@ module Kitchen
       end
       default_config :lease_days, nil
       default_config :notes, nil
+      default_config :cache_credentials, false
       default_config :extra_parameters, {}
       default_config :private_key_path do
         %w(id_rsa id_dsa).map do |key|
@@ -56,6 +61,46 @@ module Kitchen
 
       def name
         'vRA'
+      end
+
+      def check_config(force_change = false)
+        c_load
+        config[:username] = ask('Enter Username: ') if config[:username].eql?('') || force_change
+        config[:password] = ask('Enter password: ') { |q| q.echo = '*' } if config[:password].eql?('') || force_change
+        c_save
+      end
+
+      def c_save
+        cipher = OpenSSL::Cipher::Cipher.new('aes-256-cbc')
+        cipher.encrypt
+        cipher.key = Digest::SHA1.hexdigest(config[:base_url])
+        iv = cipher.random_iv
+        cipher.iv = iv
+        username = cipher.update(config[:username]) + cipher.final
+        password = cipher.update(config[:password]) + cipher.final
+        output = "#{Base64.encode64(iv).strip!}:#{Base64.encode64(username).strip!}:#{Base64.encode64(password).strip!}"
+        file = File.open('.kitchen/cached_vra', 'w')
+        file.write(output)
+        file.close
+      rescue
+        puts 'Unable to save credentials'
+      end
+
+      def c_load
+        if File.exist? '.kitchen/cached_vra'
+          encrypted = File.read('.kitchen/cached_vra')
+          iv = Base64.decode64(encrypted.split(':')[0] + '\n')
+          username = Base64.decode64(encrypted.split(':')[1] + "\n")
+          password = Base64.decode64(encrypted.split(':')[2] + "\n")
+          cipher = OpenSSL::Cipher::Cipher.new('aes-256-cbc')
+          cipher.decrypt
+          cipher.key = Digest::SHA1.hexdigest(config[:base_url])
+          cipher.iv = iv
+          config[:username] = cipher.update(username) + cipher.final
+          config[:password] = cipher.update(password) + cipher.final
+        end
+      rescue
+        puts 'Failed to load cached credentials'
       end
 
       def create(state)
@@ -95,7 +140,7 @@ module Kitchen
 
         servers = submitted_request.resources.select(&:vm?)
         raise 'The vRA request created more than one server. The catalog blueprint should only return one.' if servers.size > 1
-        raise 'the vRA request did not create any servers.' if servers.empty?
+        raise 'the vRA request did not create any servers.' if servers.size.zero?
 
         servers.first
       end
@@ -165,6 +210,7 @@ module Kitchen
       end
 
       def vra_client
+        check_config false if config[:cache_credentials]
         @client ||= ::Vra::Client.new(
           base_url:   config[:base_url],
           username:   config[:username],
@@ -172,9 +218,13 @@ module Kitchen
           tenant:     config[:tenant],
           verify_ssl: config[:verify_ssl]
         )
+      rescue => _e
+        check_config true
       end
 
       def wait_for_request(request)
+        # config = check_config config
+
         last_status = ''
         wait_time   = config[:request_timeout]
         sleep_time  = config[:request_refresh_rate]
