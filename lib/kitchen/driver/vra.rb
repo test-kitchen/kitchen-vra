@@ -204,7 +204,7 @@ module Kitchen
         catalog_request.subtenant_id  = config[:subtenant_id]  unless config[:subtenant_id].nil?
 
         config[:extra_parameters].each do |key, value_data|
-          catalog_request.set_parameter(key, value_data[:type], value_data[:value])
+          catalog_request.set_parameters(key, value_data)
         end
 
         catalog_request
