@@ -1,8 +1,22 @@
 # Change Log
 
-## [Unreleased](https://github.com/chef-partners/kitchen-vra/tree/HEAD)
+## [2.3.0](https://github.com/chef-partners/kitchen-vra/tree/2.3.0) (2017-07-14)
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.2.0...2.3.0)
 
-[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.0.0...HEAD)
+**Merged pull requests:**
+
+- Switched to using set\_parameters [\#24](https://github.com/chef-partners/kitchen-vra/pull/24) ([lloydsmithjr03](https://github.com/lloydsmithjr03))
+- Updates for travis and rubocop [\#23](https://github.com/chef-partners/kitchen-vra/pull/23) ([jjasghar](https://github.com/jjasghar))
+
+## [v2.2.0](https://github.com/chef-partners/kitchen-vra/tree/v2.2.0) (2017-02-15)
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.1.0...v2.2.0)
+
+**Merged pull requests:**
+
+- Vra cache creds [\#16](https://github.com/chef-partners/kitchen-vra/pull/16) ([michaelschlies](https://github.com/michaelschlies))
+
+## [v2.1.0](https://github.com/chef-partners/kitchen-vra/tree/v2.1.0) (2017-02-13)
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.0.0...v2.1.0)
 
 **Closed issues:**
 
