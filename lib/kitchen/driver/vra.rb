@@ -31,11 +31,12 @@ module Kitchen
       kitchen_driver_api_version 2
       plugin_version Kitchen::Driver::VRA_VERSION
 
-      default_config :username, ''
-      default_config :password, ''
+      default_config :username, nil
+      default_config :password, nil
       required_config :base_url
       required_config :tenant
-      required_config :catalog_id
+      default_config :catalog_id, nil
+      default_config :catalog_name, nil
 
       default_config :subtenant, nil
       default_config :verify_ssl, true
@@ -65,21 +66,26 @@ module Kitchen
       end
 
       def check_config(force_change = false)
-        c_load
-        config[:username] = ask('Enter Username: ') if config[:username].eql?('') || force_change
-        config[:password] = ask('Enter password: ') { |q| q.echo = '*' } if config[:password].eql?('') || force_change
-        c_save
+        config[:username] = config[:username] || ENV['VRA_USER_NAME']
+        config[:password] = config[:password] || ENV['VRA_USER_PASSWORD']
+        c_load if config[:username].nil? && config[:password].nil?
+
+        config[:username] = ask('Enter Username: ') if config[:username].nil? || force_change
+        config[:password] = ask('Enter password: ') { |q| q.echo = '*' } if config[:password].nil? || force_change
+        c_save if config[:cache_credentials]
       end
 
       def c_save
         cipher = OpenSSL::Cipher::Cipher.new('aes-256-cbc')
         cipher.encrypt
         cipher.key = Digest::SHA1.hexdigest(config[:base_url])
-        iv = cipher.random_iv
-        cipher.iv = iv
+        iv_user = cipher.random_iv
+        cipher.iv = iv_user
         username = cipher.update(config[:username]) + cipher.final
+        iv_pwd = cipher.random_iv
+        cipher.iv = iv_pwd
         password = cipher.update(config[:password]) + cipher.final
-        output = "#{Base64.encode64(iv).strip!}:#{Base64.encode64(username).strip!}:#{Base64.encode64(password).strip!}"
+        output = "#{Base64.encode64(iv_user).strip!}:#{Base64.encode64(username).strip!}:#{Base64.encode64(iv_pwd).strip!}:#{Base64.encode64(password).strip!}"
         file = File.open('.kitchen/cached_vra', 'w')
         file.write(output)
         file.close
@@ -90,14 +96,16 @@ module Kitchen
       def c_load
         if File.exist? '.kitchen/cached_vra'
           encrypted = File.read('.kitchen/cached_vra')
-          iv = Base64.decode64(encrypted.split(':')[0] + '\n')
+          iv_user = Base64.decode64(encrypted.split(':')[0] + '\n')
           username = Base64.decode64(encrypted.split(':')[1] + "\n")
-          password = Base64.decode64(encrypted.split(':')[2] + "\n")
+          iv_pwd = Base64.decode64(encrypted.split(':')[2] + "\n")
+          password = Base64.decode64(encrypted.split(':')[3] + "\n")
           cipher = OpenSSL::Cipher::Cipher.new('aes-256-cbc')
           cipher.decrypt
           cipher.key = Digest::SHA1.hexdigest(config[:base_url])
-          cipher.iv = iv
+          cipher.iv = iv_user
           config[:username] = cipher.update(username) + cipher.final
+          cipher.iv = iv_pwd
           config[:password] = cipher.update(password) + cipher.final
         end
       rescue
@@ -191,9 +199,23 @@ module Kitchen
         info("Destroy request #{destroy_request.id} submitted.")
         wait_for_request(destroy_request)
         info('Destroy request complete.')
+        
+        File.delete('.kitchen/cached_vra') if File.exist?('.kitchen/cached_vra')
+        info('Removed cached file')
       end
 
       def catalog_request
+        if config[:catalog_name] != nil
+           info('Fetching Catalog ID by Catalog Name')
+           response =  vra_client.catalog.fetch_catalog_items(config[:catalog_name])
+           parsed_json = JSON.parse(response.body)
+           begin
+             config[:catalog_id] = parsed_json['content'][0]['catalogItemId']
+           rescue
+             puts "Unable to retrieve Catalog ID from Catalog Name: #{config[:catalog_name]}"
+           end
+        end
+
         catalog_request = vra_client.catalog.request(config[:catalog_id])
 
         catalog_request.cpus          = config[:cpus]
@@ -211,7 +233,7 @@ module Kitchen
       end
 
       def vra_client
-        check_config false if config[:cache_credentials]
+        check_config config[:cache_credentials]
         @client ||= ::Vra::Client.new(
           base_url:   config[:base_url],
           username:   config[:username],
