@@ -53,7 +53,7 @@ If you don't want to explicitly specify username and password in the kitchen.yml
 Then configure your platforms. Either a catalog_id or a catalog_name is required for each platform. If both catalog_id and catalog_name are mentioned in .kitchen.yml then catalog_name would be used to derive the catalog_id and this catalog_id would override the catalog_id being passed in .kitchen.yml. In the below example as can be seen we are using catalog_id for centos6 driver while catalog_name for the centos7 driver just to demonstrate that we can use either of the two.
 
 
-``yaml
+```yaml
 platforms:
   - name: centos6
     driver:
