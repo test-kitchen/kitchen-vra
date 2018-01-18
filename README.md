@@ -45,19 +45,22 @@ driver:
   base_url: https://vra.corp.local
   verify_ssl: true
 ```
+If you don't want to explicitly specify username and password in the kitchen.yml, you have an option to set it in the environment variable as 
 
-Then configure your platforms. Either a catalog_id or a catalog_name is required for each platform. If both catalog_id and catalog_name are mentioned in .kitchen.yml then catalog_name would be used to derive the catalog_id and this catalog_id would override the catalog_id being passed in .kitchen.yml:
+    $ export VRA_USER_NAME='myuser@corp.local'
+    $ export VRA_USER_PASSWORD='mypassword'
 
-```yaml
+Then configure your platforms. Either a catalog_id or a catalog_name is required for each platform. If both catalog_id and catalog_name are mentioned in .kitchen.yml then catalog_name would be used to derive the catalog_id and this catalog_id would override the catalog_id being passed in .kitchen.yml. In the below example as can be seen we are using catalog_id for centos6 driver while catalog_name for the centos7 driver just to demonstrate that we can use either of the two.
+
+
+``yaml
 platforms:
   - name: centos6
     driver:
-      catalog_name: my_catalog_name
       catalog_id: e9db1084-d1c6-4c1f-8e3c-eb8f3dc574f9
   - name: centos7
     driver:
       catalog_name: my_catalog_name
-      catalog_id: c4211950-ab07-42b1-ba80-8f5d3f2c8251
 ```
 
 
