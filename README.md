@@ -36,7 +36,22 @@ driver:
   verify_ssl: true
 ```
 
-Then configure your platforms. A catalog_id is required for each platform:
+If you want username and password to be prompted, remove usename and password in your .kitchen.yml as shown below:
+
+```yaml
+driver:
+  name: vra
+  tenant: mytenant
+  base_url: https://vra.corp.local
+  verify_ssl: true
+```
+If you don't want to explicitly specify username and password in the kitchen.yml, you have an option to set it in the environment variable as 
+
+    $ export VRA_USER_NAME='myuser@corp.local'
+    $ export VRA_USER_PASSWORD='mypassword'
+
+Then configure your platforms. Either a catalog_id or a catalog_name is required for each platform. If both catalog_id and catalog_name are mentioned in .kitchen.yml then catalog_name would be used to derive the catalog_id and this catalog_id would override the catalog_id being passed in .kitchen.yml. In the below example as can be seen we are using catalog_id for centos6 driver while catalog_name for the centos7 driver just to demonstrate that we can use either of the two.
+
 
 ```yaml
 platforms:
@@ -45,8 +60,10 @@ platforms:
       catalog_id: e9db1084-d1c6-4c1f-8e3c-eb8f3dc574f9
   - name: centos7
     driver:
-      catalog_id: c4211950-ab07-42b1-ba80-8f5d3f2c8251
+      catalog_name: my_catalog_name
 ```
+
+
 
 Other options that you can set include:
 
@@ -72,6 +89,7 @@ driver:
 platforms:
   - name: small
     driver:
+      catalog_name: my_catalog_name_small
       catalog_id: 8a189191-fea6-43eb-981e-ee0fa40f8f57
       extra_parameters:
         provider-mycustompropname:
@@ -82,6 +100,7 @@ platforms:
           value: Non-Prod
   - name: large
     driver:
+      catalog_name: my_catalog_name_large
       catalog_id: 1d7c6122-18fa-4ed6-bd13-8a33b6c6ed50
       cpus: 2
       extra_parameters:
