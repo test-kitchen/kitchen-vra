@@ -74,6 +74,7 @@ Other options that you can set include:
  * **memory**: amount of RAM, in MB, the host should have
  * **requested_for**: the vRA login ID to list as the owner of this resource. Defaults to the vRA username configured in the `driver` section.
  * **subtenant_id**: the Business Group ID to list as the owner. This is required if the catalog item is a shared/global item; we are unable to determine the subtenant_id from the catalog, and vRA requires it to be set on every request.
+ * **subtenant_name**: the Business Group Name as the owner. This can be passed instead of subtenant_id and would act as a more friendly name. subtenant_id would be internally retrieved based on the provided subtenant_name. In case both subtenant_id and subtenant_name are passed, subtenant_name would take the precendence and would try to retrieve subtenant_id based on subtenant_name passed.
  * **private_key_path**: path to the SSH private key to use when logging in. Defaults to '~/.ssh/id_rsa' or '~/.ssh/id_dsa', preferring the RSA key. Only applies to instances where SSH transport is used; i.e., does not apply to Windows hosts with the WinRM transport configured.
  * **use_dns**: Defaults to `false`.  Set to `true` if vRA doesn't manage vm ip addresses.  This will cause kitchen to attempt to connect via hostname.
  * **dns_suffix**: Defaults to `nil`.  Set to your domain suffix, for example 'mydomain.com'.  This only takes effect when `use_dns` == true and is appended to the hostname returned by vRA.
@@ -103,6 +104,7 @@ platforms:
       catalog_name: my_catalog_name_large
       catalog_id: 1d7c6122-18fa-4ed6-bd13-8a33b6c6ed50
       cpus: 2
+      subtenant_name: my_subtenant_name
       extra_parameters:
         provider-mycustompropname:
           type: string
