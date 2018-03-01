@@ -1,26 +1,26 @@
 # Change Log
 
-## [2.5.0] (https://github.com/chef-partners/kitchen-vra/tree/v2.5.0) (2018-02-22)
-[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.4.0...2.5.0)
+## [v2.5.0](https://github.com/chef-partners/kitchen-vra/tree/v2.5.0)
 
-**Enhanced/Fixed:**
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.4.0...v2.5.0)
 
-- Enhance vRA Kitchen driver to accept Subtenant name as an input.
+**Closed issues:**
 
-## [2.4.0] (https://github.com/chef-partners/kitchen-vra/tree/v2.4.0) (2018-01-04)
-[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.3.0...2.4.0)
+- Feature Query: Support for Capture Snapshot & Restore Snapshot [\#27](https://github.com/chef-partners/kitchen-vra/issues/27)
 
-**Enhanced/Fixed:**
+**Merged pull requests:**
 
-- Enhance vRA Kitchen driver to accept Catalog name as an input.
-- Ability of vRA Kitchen driver to accept credentials from environment variable even if they are not being mentioned in the `.kitchen.yml` file 
-- Ability of vRA kitchen driver to prompt for credentials if it’s not able retrieve from `.kitchen.yml` or from environment variable.
-- An option to not save credentials based on the usage of an existing flag.
-- Fixed a bug in the encryption/decryption logic.
+- Accept subtenant name as input in kitchen.yml [\#28](https://github.com/chef-partners/kitchen-vra/pull/28) ([vinuphilip](https://github.com/vinuphilip))
 
+## [v2.4.0](https://github.com/chef-partners/kitchen-vra/tree/v2.4.0) (2018-01-22)
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.3.0...v2.4.0)
 
-## [2.3.0](https://github.com/chef-partners/kitchen-vra/tree/2.3.0) (2017-07-14)
-[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.2.0...2.3.0)
+**Merged pull requests:**
+
+- Kitchen vRA enahancements [\#26](https://github.com/chef-partners/kitchen-vra/pull/26) ([rupeshpatel88](https://github.com/rupeshpatel88))
+
+## [v2.3.0](https://github.com/chef-partners/kitchen-vra/tree/v2.3.0) (2017-07-14)
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.2.0...v2.3.0)
 
 **Merged pull requests:**
 

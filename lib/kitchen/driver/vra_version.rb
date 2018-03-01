@@ -19,6 +19,6 @@
 
 module Kitchen
   module Driver
-    VRA_VERSION = '2.5.0'
+    VRA_VERSION = '2.6.0'
   end
 end
