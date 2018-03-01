@@ -38,7 +38,8 @@ module Kitchen
       default_config :catalog_id, nil
       default_config :catalog_name, nil
 
-      default_config :subtenant, nil
+      default_config :subtenant_id, nil
+      default_config :subtenant_name, nil
       default_config :verify_ssl, true
       default_config :request_timeout, 600
       default_config :request_refresh_rate, 2
@@ -223,6 +224,17 @@ module Kitchen
         catalog_request.requested_for = config[:requested_for]
         catalog_request.lease_days    = config[:lease_days]    unless config[:lease_days].nil?
         catalog_request.notes         = config[:notes]         unless config[:notes].nil?
+
+        if config[:subtenant_name] != nil
+          info('Fetching Subtenant ID by Subtenant Name')
+          response = vra_client.fetch_subtenant_items(config[:tenant], config[:subtenant_name])
+          parsed_json = JSON.parse(response.body)
+          begin
+            config[:subtenant_id] = parsed_json['content'][0]['id']
+          rescue
+            puts "Unable to retrieve Subtenant ID from Subtenant Name: #{config[:subtenant_name]}"
+          end
+        end 
         catalog_request.subtenant_id  = config[:subtenant_id]  unless config[:subtenant_id].nil?
 
         config[:extra_parameters].each do |key, value_data|

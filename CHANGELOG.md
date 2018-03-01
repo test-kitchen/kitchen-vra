@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.5.0] (https://github.com/chef-partners/kitchen-vra/tree/v2.5.0) (2018-02-22)
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.4.0...2.5.0)
+
+**Enhanced/Fixed:**
+
+- Enhance vRA Kitchen driver to accept Subtenant name as an input.
+
 ## [2.4.0] (https://github.com/chef-partners/kitchen-vra/tree/v2.4.0) (2018-01-04)
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.3.0...2.4.0)
 
