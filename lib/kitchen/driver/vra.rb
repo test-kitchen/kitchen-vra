@@ -52,6 +52,7 @@ module Kitchen
       default_config :lease_days, nil
       default_config :notes, nil
       default_config :cache_credentials, false
+      default_config :deep_merge, false
       default_config :extra_parameters, {}
       default_config :private_key_path do
         %w(id_rsa id_dsa).map do |key|
@@ -200,7 +201,7 @@ module Kitchen
         info("Destroy request #{destroy_request.id} submitted.")
         wait_for_request(destroy_request)
         info('Destroy request complete.')
-        
+
         File.delete('.kitchen/cached_vra') if File.exist?('.kitchen/cached_vra')
         info('Removed cached file')
       end
@@ -234,7 +235,7 @@ module Kitchen
           rescue
             puts "Unable to retrieve Subtenant ID from Subtenant Name: #{config[:subtenant_name]}"
           end
-        end 
+        end
         catalog_request.subtenant_id  = config[:subtenant_id]  unless config[:subtenant_id].nil?
 
         config[:extra_parameters].each do |key, value_data|
@@ -251,7 +252,8 @@ module Kitchen
           username:   config[:username],
           password:   config[:password],
           tenant:     config[:tenant],
-          verify_ssl: config[:verify_ssl]
+          verify_ssl: config[:verify_ssl],
+          deep_merge: config[:deep_merge]
         )
       rescue => _e
         check_config true
