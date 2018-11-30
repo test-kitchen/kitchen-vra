@@ -22,7 +22,7 @@ Style/SignalException:
   Enabled: false
 Layout/SpaceInsideBrackets:
   Enabled: false
-Style/MutableConstant
+Style/MutableConstant:
   Enabled: false
 Metrics/BlockLength:
   Exclude:
