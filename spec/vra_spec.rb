@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #
 # Author:: Chef Partner Engineering (<partnereng@chef.io>)
 # Copyright:: Copyright (c) 2015 Chef Software, Inc.
@@ -399,7 +400,7 @@ describe Kitchen::Driver::Vra do
       allow(driver).to receive(:vra_client).and_return(vra_client)
       allow(vra_client).to receive(:catalog).and_return(catalog)
       allow(catalog).to receive(:request).and_return(catalog_request)
-      [ :cpus=, :memory=, :requested_for=, :lease_days=, :notes=, :subtenant_id=, :set_parameter ].each do |method|
+      %i[cpus= memory= requested_for= lease_days= notes= subtenant_id= set_parameter].each do |method|
         allow(catalog_request).to receive(method)
       end
     end
@@ -457,8 +458,8 @@ describe Kitchen::Driver::Vra do
       end
 
       it 'sets extra parmeters' do
-        expect(catalog_request).to receive(:set_parameter).with('key1', 'string', 'value1')
-        expect(catalog_request).to receive(:set_parameter).with('key2', 'integer', 123)
+        expect(catalog_request).to receive(:set_parameters).with('key1', type: 'string', value: 'value1')
+        expect(catalog_request).to receive(:set_parameters).with('key2', type: 'integer', value: 123)
         driver.catalog_request
       end
     end

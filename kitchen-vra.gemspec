@@ -1,5 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
+
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'kitchen/driver/vra_version'
@@ -30,5 +31,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec',     '~> 3.2'
   spec.add_development_dependency 'simplecov', '~> 0.10'
   spec.add_development_dependency 'webmock',   '~> 1.21'
-  spec.add_development_dependency 'rubocop',   '~> 0.35'
+  spec.add_development_dependency 'rubocop',   '~> 0.49.0'
 end
