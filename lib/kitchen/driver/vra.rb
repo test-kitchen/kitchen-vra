@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #
 # Author:: Chef Partner Engineering (<partnereng@chef.io>)
 # Copyright:: Copyright (c) 2015 Chef Software, Inc.
@@ -54,7 +55,7 @@ module Kitchen
       default_config :cache_credentials, false
       default_config :extra_parameters, {}
       default_config :private_key_path do
-        %w(id_rsa id_dsa).map do |key|
+        %w[id_rsa id_dsa].map do |key|
           file = File.expand_path("~/.ssh/#{key}")
           file if File.exist?(file)
         end.compact.first
@@ -200,21 +201,21 @@ module Kitchen
         info("Destroy request #{destroy_request.id} submitted.")
         wait_for_request(destroy_request)
         info('Destroy request complete.')
-        
+
         File.delete('.kitchen/cached_vra') if File.exist?('.kitchen/cached_vra')
         info('Removed cached file')
       end
 
-      def catalog_request
-        if config[:catalog_name] != nil
-           info('Fetching Catalog ID by Catalog Name')
-           response =  vra_client.catalog.fetch_catalog_items(config[:catalog_name])
-           parsed_json = JSON.parse(response.body)
-           begin
-             config[:catalog_id] = parsed_json['content'][0]['catalogItemId']
-           rescue
-             puts "Unable to retrieve Catalog ID from Catalog Name: #{config[:catalog_name]}"
-           end
+      def catalog_request # rubocop:disable Metrics/MethodLength
+        unless config[:catalog_name].nil?
+          info('Fetching Catalog ID by Catalog Name')
+          response =  vra_client.catalog.fetch_catalog_items(config[:catalog_name])
+          parsed_json = JSON.parse(response.body)
+          begin
+            config[:catalog_id] = parsed_json['content'][0]['catalogItemId']
+          rescue
+            puts "Unable to retrieve Catalog ID from Catalog Name: #{config[:catalog_name]}"
+          end
         end
 
         catalog_request = vra_client.catalog.request(config[:catalog_id])
@@ -225,7 +226,7 @@ module Kitchen
         catalog_request.lease_days    = config[:lease_days]    unless config[:lease_days].nil?
         catalog_request.notes         = config[:notes]         unless config[:notes].nil?
 
-        if config[:subtenant_name] != nil
+        unless config[:subtenant_name].nil?
           info('Fetching Subtenant ID by Subtenant Name')
           response = vra_client.fetch_subtenant_items(config[:tenant], config[:subtenant_name])
           parsed_json = JSON.parse(response.body)
@@ -234,8 +235,8 @@ module Kitchen
           rescue
             puts "Unable to retrieve Subtenant ID from Subtenant Name: #{config[:subtenant_name]}"
           end
-        end 
-        catalog_request.subtenant_id  = config[:subtenant_id]  unless config[:subtenant_id].nil?
+        end
+        catalog_request.subtenant_id = config[:subtenant_id] unless config[:subtenant_id].nil?
 
         config[:extra_parameters].each do |key, value_data|
           catalog_request.set_parameters(key, value_data)

@@ -1,19 +1,28 @@
 AllCops:
   DisplayCopNames: true
 Metrics/AbcSize:
-  Max: 50
+  Max: 100
 Metrics/ClassLength:
   Max: 125
+Metrics/CyclomaticComplexity:
+  Max: 20
+Metrics/MethodLength:
+  Exclude:
+    - '**/*.rb'
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Max: 30
 Metrics/LineLength:
-  Max: 130
+  Max: 200
 Metrics/MethodLength:
   Max: 25
 Style/Documentation:
   Enabled: false
 Style/SignalException:
   Enabled: false
-Style/SpaceInsideBrackets:
+Layout/SpaceInsideBrackets:
   Enabled: false
 Metrics/BlockLength:
   Exclude:
     - "**/*_spec.rb"
+ 
