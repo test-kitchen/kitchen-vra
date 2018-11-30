@@ -22,6 +22,8 @@ Style/SignalException:
   Enabled: false
 Layout/SpaceInsideBrackets:
   Enabled: false
+Style/MutableConstant
+  Enabled: false
 Metrics/BlockLength:
   Exclude:
     - "**/*_spec.rb"
