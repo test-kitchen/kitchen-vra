@@ -78,7 +78,7 @@ Other options that you can set include:
  * **private_key_path**: path to the SSH private key to use when logging in. Defaults to '~/.ssh/id_rsa' or '~/.ssh/id_dsa', preferring the RSA key. Only applies to instances where SSH transport is used; i.e., does not apply to Windows hosts with the WinRM transport configured.
  * **use_dns**: Defaults to `false`.  Set to `true` if vRA doesn't manage vm ip addresses.  This will cause kitchen to attempt to connect via hostname.
  * **dns_suffix**: Defaults to `nil`.  Set to your domain suffix, for example 'mydomain.com'.  This only takes effect when `use_dns` == true and is appended to the hostname returned by vRA.
- * **extra_parameters**: a hash of other data to set on a catalog request, most notably custom properties. Allows updates to existing properties on the blueprint as well as the addition of new properties. The vRA REST API expects 'provider-' appended to the front of a property name; each key in the hash is the property name, and the value is a another hash containing the value data type and the value itself.
+ * **extra_parameters**: a hash of other data to set on a catalog request, most notably custom properties. Allows updates to existing properties on the blueprint as well as the addition of new properties. Each key in the hash is the property name, and the value is a another hash containing the value data type and the value itself. It is possible to use a `~` to add nested parameters.
 
 These settings can be set globally under the top-level `driver` section, or they can be set on each platform, which allows you to set globals and then override them. For example, this configuration would set the CPU count to 1 except on the "large" platform:
 
@@ -93,10 +93,10 @@ platforms:
       catalog_name: my_catalog_name_small
       catalog_id: 8a189191-fea6-43eb-981e-ee0fa40f8f57
       extra_parameters:
-        provider-mycustompropname:
+        mycustompropname:
           type: string
           value: smallvalue
-        provider-Vrm.DataCenter.Location:
+        Vrm.DataCenter.Location:
           type: string
           value: Non-Prod
   - name: large
@@ -106,10 +106,10 @@ platforms:
       cpus: 2
       subtenant_name: my_subtenant_name
       extra_parameters:
-        provider-mycustompropname:
+        mycustompropname:
           type: string
           value: largevalue
-        provider-Vrm.DataCenter.Location:
+        Vrm.DataCenter.Location:
           type: string
           value: Prod
 ```
@@ -118,7 +118,7 @@ platforms:
 
 Author:: Chef Partner Engineering (<partnereng@chef.io>)
 
-Copyright:: Copyright (c) 2015-2017 Chef Software, Inc.
+Copyright:: Copyright (c) 2015-2019 Chef Software, Inc.
 
 License:: Apache License, Version 2.0
 
