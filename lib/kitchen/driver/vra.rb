@@ -223,7 +223,7 @@ module Kitchen
 
         catalog_request.cpus          = config[:cpus]
         catalog_request.memory        = config[:memory]
-        catalog_request.shirt_size    = config[:shirt_size]
+        catalog_request.shirt_size    = config[:shirt_size]	unless config[:shirt_size].nil?
         catalog_request.requested_for = config[:requested_for]
         catalog_request.lease_days    = config[:lease_days]    unless config[:lease_days].nil?
         catalog_request.notes         = config[:notes]         unless config[:notes].nil?
