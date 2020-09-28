@@ -47,6 +47,7 @@ module Kitchen
       default_config :server_ready_retries, 1
       default_config :cpus, 1
       default_config :memory, 1024
+      default_config :shirt_size, nil
       default_config :requested_for do |driver|
         driver[:username]
       end
@@ -72,7 +73,7 @@ module Kitchen
         config[:password] = config[:password] || ENV['VRA_USER_PASSWORD']
         c_load if config[:username].nil? && config[:password].nil?
 
-        config[:username] = ask('Enter Username: ') if config[:username].nil? || force_change
+        config[:username] = ask('Enter Username: e.g. username@domain') if config[:username].nil? || force_change
         config[:password] = ask('Enter password: ') { |q| q.echo = '*' } if config[:password].nil? || force_change
         c_save if config[:cache_credentials]
       end
@@ -222,6 +223,7 @@ module Kitchen
 
         catalog_request.cpus          = config[:cpus]
         catalog_request.memory        = config[:memory]
+        catalog_request.shirt_size    = config[:shirt_size]	unless config[:shirt_size].nil?
         catalog_request.requested_for = config[:requested_for]
         catalog_request.lease_days    = config[:lease_days]    unless config[:lease_days].nil?
         catalog_request.notes         = config[:notes]         unless config[:notes].nil?
