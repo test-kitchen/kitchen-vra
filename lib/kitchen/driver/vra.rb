@@ -25,7 +25,7 @@ require 'base64'
 require 'digest/sha1'
 require 'vra'
 require_relative 'vra_version'
-
+require 'pry'
 module Kitchen
   module Driver
     class Vra < Kitchen::Driver::Base # rubocop:disable Metrics/ClassLength
@@ -36,6 +36,10 @@ module Kitchen
       default_config :password, nil
       required_config :base_url
       required_config :tenant
+      required_config :project_id
+      required_config :image_mapping
+      required_config :flavor_mapping
+      required_config :hardware_config
       default_config :catalog_id, nil
       default_config :catalog_name, nil
 
@@ -117,7 +121,7 @@ module Kitchen
 
       def create(state)
         return if state[:resource_id]
-
+        binding.pry
         server = request_server
         state[:resource_id] = server.id
         state[:hostname]    = hostname_for(server)
@@ -144,12 +148,13 @@ module Kitchen
 
       def request_server
         info('Building vRA catalog request...')
-        submitted_request = catalog_request.submit
+        binding.pry
+        submitted_request = catalog_request.submit!
         info("Catalog request #{submitted_request.id} submitted.")
 
         wait_for_request(submitted_request)
         raise "The vRA request failed: #{submitted_request.completion_details}" if submitted_request.failed?
-
+        binding.pry
         servers = submitted_request.resources.select(&:vm?)
         raise 'The vRA request created more than one server. The catalog blueprint should only return one.' if servers.size > 1
         raise 'the vRA request did not create any servers.' if servers.size.zero?
@@ -162,7 +167,7 @@ module Kitchen
 
         try = 0
         sleep_time = 0
-
+        binding.pry
         begin
           instance.transport.connection(state).wait_until_ready
         rescue => e
@@ -170,7 +175,7 @@ module Kitchen
 
           try += 1
           sleep_time += 5 if sleep_time < 30
-
+          binding.pry
           if try > config[:server_ready_retries]
             error('Retries exceeded. Destroying server...')
             destroy(state)
@@ -208,6 +213,7 @@ module Kitchen
       end
 
       def catalog_request # rubocop:disable Metrics/MethodLength
+        binding.pry
         unless config[:catalog_name].nil?
           info('Fetching Catalog ID by Catalog Name')
           response =  vra_client.catalog.fetch_catalog_items(config[:catalog_name])
@@ -218,15 +224,25 @@ module Kitchen
             puts "Unable to retrieve Catalog ID from Catalog Name: #{config[:catalog_name]}"
           end
         end
+        binding.pry
 
-        catalog_request = vra_client.catalog.request(config[:catalog_id])
+        deployment_params = {
+          image_mapping: config[:image_mapping],
+          flavor_mapping: config[:flavor_mapping],
+          name: config[:name],
+          project_id: config[:project_id],
+          version: config[:version],
+          hardware_config: config[:hardware_config]
+        }
 
-        catalog_request.cpus          = config[:cpus]
-        catalog_request.memory        = config[:memory]
-        catalog_request.shirt_size    = config[:shirt_size]	unless config[:shirt_size].nil?
-        catalog_request.requested_for = config[:requested_for]
-        catalog_request.lease_days    = config[:lease_days]    unless config[:lease_days].nil?
-        catalog_request.notes         = config[:notes]         unless config[:notes].nil?
+        catalog_request = vra_client.catalog.request(config[:catalog_id], deployment_params)
+
+        # catalog_request.cpus          = config[:cpus]
+        # catalog_request.memory        = config[:memory]
+        # catalog_request.shirt_size    = config[:shirt_size]	unless config[:shirt_size].nil?
+        # catalog_request.requested_for = config[:requested_for]
+        # catalog_request.lease_days    = config[:lease_days]    unless config[:lease_days].nil?
+        # catalog_request.notes         = config[:notes]         unless config[:notes].nil?
 
         unless config[:subtenant_name].nil?
           info('Fetching Subtenant ID by Subtenant Name')
@@ -248,6 +264,7 @@ module Kitchen
       end
 
       def vra_client
+        binding.pry
         check_config config[:cache_credentials]
         @client ||= ::Vra::Client.new(
           base_url:   config[:base_url],
@@ -266,6 +283,7 @@ module Kitchen
         last_status = ''
         wait_time   = config[:request_timeout]
         sleep_time  = config[:request_refresh_rate]
+        binding.pry
         Timeout.timeout(wait_time) do
           loop do
             request.refresh
