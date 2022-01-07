@@ -56,7 +56,6 @@ module Kitchen
         driver[:username]
       end
       default_config :deployment_name do |driver|
-        # destroy the instance if the server times out
         driver&.instance&.platform&.name
       end
       default_config :lease_days, nil
@@ -132,7 +131,7 @@ module Kitchen
         state[:ssh_key]     = config[:private_key_path] unless config[:private_key_path].nil?
 
         wait_for_server(state, server)
-        info("Server #{server.id} (#{server.name}) ready.")
+        info("Server #{server.deployment_id} (#{server.name}) ready.")
       end
 
       def hostname_for(server)
@@ -141,9 +140,9 @@ module Kitchen
           return config[:dns_suffix] ? "#{server.name}.#{config[:dns_suffix]}" : server.name
         end
 
-        ip_address = server.ip_addresses #change the method name
+        ip_address = server.ip_address
         if ip_address.nil?
-          warn("Server #{server.id} has no IP address. Falling back to server name (#{server.name})...")
+          warn("Server #{server.deployment_id} has no IP address. Falling back to server name (#{server.name})...")
           server.name
         else
           ip_address
@@ -199,7 +198,7 @@ module Kitchen
         begin
           server = vra_client.deployments.by_id(state[:deployment_id])
         rescue ::Vra::Exception::NotFound
-          warn("No server found with ID #{state[:resource_id]}, assuming it has been destroyed already.")
+          warn("No server found with ID #{state[:deployment_id]}, assuming it has been destroyed already.")
           return
         end
 
