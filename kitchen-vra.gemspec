@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'test-kitchen'
-  spec.add_dependency 'vmware-vra', '~> 2', '< 3' # 3.0 and newer is not supported
+  # spec.add_dependency 'vmware-vra', '~> 2', '< 3' # 3.0 and newer is not supported
   spec.add_dependency 'highline'
   spec.add_dependency 'rack', '~> 1.6' unless RUBY_VERSION.index('2.0.').nil?
   spec.add_dependency 'ffi-yajl', '~> 2.2.3' unless RUBY_VERSION.index('2.0.').nil?
