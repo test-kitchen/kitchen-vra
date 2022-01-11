@@ -422,8 +422,6 @@ describe Kitchen::Driver::Vra do
           password:      'mypassword',
           tenant:        'mytenant',
           verify_ssl:    true,
-          cpus:          2,
-          memory:        2048,
           requested_for: 'override_user@corp.local'
         }
       end
@@ -442,8 +440,6 @@ describe Kitchen::Driver::Vra do
           password:      'mypassword',
           tenant:        'mytenant',
           verify_ssl:    true,
-          cpus:          2,
-          memory:        2048,
           extra_parameters: { 'key1' => { type: 'string', value: 'value1' },
                               'key2' => { type: 'integer', value: 123 } }
         }

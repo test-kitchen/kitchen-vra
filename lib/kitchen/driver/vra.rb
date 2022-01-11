@@ -239,13 +239,6 @@ module Kitchen
 
         catalog_request = vra_client.catalog.request(config[:catalog_id], deployment_params)
 
-        # catalog_request.cpus          = config[:cpus]
-        # catalog_request.memory        = config[:memory]
-        # catalog_request.shirt_size    = config[:shirt_size]	unless config[:shirt_size].nil?
-        # catalog_request.requested_for = config[:requested_for]
-        # catalog_request.lease_days    = config[:lease_days]    unless config[:lease_days].nil?
-        # catalog_request.notes         = config[:notes]         unless config[:notes].nil?
-
         unless config[:subtenant_name].nil?
           info('Fetching Subtenant ID by Subtenant Name')
           response = vra_client.fetch_subtenant_items(config[:tenant], config[:subtenant_name])
