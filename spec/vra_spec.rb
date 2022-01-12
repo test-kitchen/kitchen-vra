@@ -43,7 +43,8 @@ describe Kitchen::Driver::Vra do
       verify_ssl:      true,
       subtenant_id:    '160b473a-0ec9-473d-8156-28dd96c0b6b7',
       use_dns:         false,
-      deployment_name: 'test-instance'
+      deployment_name: 'test-instance',
+      version:          1
     }
   end
 
@@ -412,11 +413,15 @@ describe Kitchen::Driver::Vra do
     context 'when option parameters are not supplied' do
       let(:config) do
         {
-          base_url:      'https://vra.corp.local',
-          username:      'myuser',
-          password:      'mypassword',
-          tenant:        'mytenant',
-          verify_ssl:    true,
+          base_url:        'https://vra.corp.local',
+          username:        'myuser',
+          password:        'mypassword',
+          tenant:          'mytenant',
+          verify_ssl:      true,
+          project_id:      '6ba69375-79d5-42c3-a099-7d32739f71a7',
+          image_mapping:   'VRA-nc-lnx-ce8.4-Docker',
+          flavor_mapping:  'Small',
+          version:         1
         }
       end
 
@@ -429,11 +434,15 @@ describe Kitchen::Driver::Vra do
     context 'when extra parameters are set' do
       let(:config) do
         {
-          base_url:      'https://vra.corp.local',
-          username:      'myuser',
-          password:      'mypassword',
-          tenant:        'mytenant',
-          verify_ssl:    true,
+          base_url:         'https://vra.corp.local',
+          username:         'myuser',
+          password:         'mypassword',
+          tenant:           'mytenant',
+          verify_ssl:       true,
+          project_id:       '6ba69375-79d5-42c3-a099-7d32739f71a7',
+          image_mapping:    'VRA-nc-lnx-ce8.4-Docker',
+          flavor_mapping:   'Small',
+          version:          1,
           extra_parameters: { 'key1' => { type: 'string', value: 'value1' },
                               'key2' => { type: 'integer', value: 123 } }
         }

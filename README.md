@@ -128,7 +128,7 @@ platforms:
 
 Author:: Chef Partner Engineering (<partnereng@chef.io>)
 
-Copyright:: Copyright (c) 2015-2019 Chef Software, Inc.
+Copyright:: Copyright (c) 2022 Chef Software, Inc.
 
 License:: Apache License, Version 2.0
 
