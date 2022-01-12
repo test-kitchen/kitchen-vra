@@ -49,17 +49,9 @@ module Kitchen
       default_config :request_timeout, 600
       default_config :request_refresh_rate, 2
       default_config :server_ready_retries, 1
-      default_config :cpus, 1
-      default_config :memory, 1024
-      default_config :shirt_size, nil
-      default_config :requested_for do |driver|
-        driver[:username]
-      end
       default_config :deployment_name do |driver|
         driver&.instance&.platform&.name
       end
-      default_config :lease_days, nil
-      default_config :notes, nil
       default_config :cache_credentials, false
       default_config :extra_parameters, {}
       default_config :private_key_path do

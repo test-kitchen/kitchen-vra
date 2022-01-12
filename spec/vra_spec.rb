@@ -41,12 +41,7 @@ describe Kitchen::Driver::Vra do
       image_mapping:   'VRA-nc-lnx-ce8.4-Docker',
       flavor_mapping:  'Small',
       verify_ssl:      true,
-      cpus:            2,
-      memory:          2048,
-      requested_for:   'override_user@corp.local',
-      notes:           'some notes',
       subtenant_id:    '160b473a-0ec9-473d-8156-28dd96c0b6b7',
-      lease_days:      5,
       use_dns:         false,
       deployment_name: 'test-instance'
     }
@@ -422,7 +417,6 @@ describe Kitchen::Driver::Vra do
           password:      'mypassword',
           tenant:        'mytenant',
           verify_ssl:    true,
-          requested_for: 'override_user@corp.local'
         }
       end
 
