@@ -33,18 +33,18 @@ describe Kitchen::Driver::Vra do
 
   let(:config) do
     {
-      base_url:      'https://vra.corp.local',
-      username:      'myuser',
-      password:      'mypassword',
-      tenant:        'mytenant',
-      verify_ssl:    true,
-      cpus:          2,
-      memory:        2048,
-      requested_for: 'override_user@corp.local',
-      notes:         'some notes',
-      subtenant_id:  '160b473a-0ec9-473d-8156-28dd96c0b6b7',
-      lease_days:    5,
-      use_dns:       false
+      base_url:        'https://vra.corp.local',
+      username:        'myuser',
+      password:        'mypassword',
+      tenant:          'mytenant',
+      project_id:      '6ba69375-79d5-42c3-a099-7d32739f71a7',
+      image_mapping:   'VRA-nc-lnx-ce8.4-Docker',
+      flavor_mapping:  'Small',
+      verify_ssl:      true,
+      subtenant_id:    '160b473a-0ec9-473d-8156-28dd96c0b6b7',
+      use_dns:         false,
+      deployment_name: 'test-instance',
+      version:          1
     }
   end
 
@@ -72,7 +72,7 @@ describe Kitchen::Driver::Vra do
 
   describe '#create' do
     context 'when the server is already created' do
-      let(:state) { { resource_id: '48959518-6a0d-46e1-8415-3749696b65f4' } }
+      let(:state) { { deployment_id: '48959518-6a0d-46e1-8415-3749696b65f4' } }
 
       it 'does not submit a catalog request' do
         expect(driver).not_to receive(:request_server)
@@ -83,9 +83,9 @@ describe Kitchen::Driver::Vra do
     let(:state) { {} }
     let(:resource) do
       double('server1',
-             id: 'e8706351-cf4c-4c12-acb7-c90cc683b22c',
-             name: 'server1',
-             ip_addresses: [ '1.2.3.4' ],
+             deployment_id: 'e8706351-cf4c-4c12-acb7-c90cc683b22c',
+             name: 'test-server',
+             ip_address: '1.2.3.4',
              vm?: true)
     end
 
@@ -101,7 +101,7 @@ describe Kitchen::Driver::Vra do
 
     it 'sets the server ID in the state hash' do
       driver.create(state)
-      expect(state[:resource_id]).to eq('e8706351-cf4c-4c12-acb7-c90cc683b22c')
+      expect(state[:deployment_id]).to eq('e8706351-cf4c-4c12-acb7-c90cc683b22c')
     end
 
     it 'sets the hostname in the state hash' do
@@ -119,9 +119,9 @@ describe Kitchen::Driver::Vra do
   describe '#hostname_for' do
     let(:server) do
       double('server',
-             id: 'test_id',
+             deployment_id: 'test_id',
              name: 'test_hostname',
-             ip_addresses: [ '1.2.3.4' ],
+             ip_address: '1.2.3.4',
              vm?: true)
     end
 
@@ -153,7 +153,7 @@ describe Kitchen::Driver::Vra do
 
     context 'when use_dns is false' do
       it 'falls back to the server name if no IP address exists' do
-        allow(server).to receive(:ip_addresses).and_return([])
+        allow(server).to receive(:ip_address).and_return(nil)
         expect(driver).to receive(:warn)
         expect(driver.hostname_for(server)).to eq('test_hostname')
       end
@@ -171,14 +171,14 @@ describe Kitchen::Driver::Vra do
       double('server1',
              id: 'e8706351-cf4c-4c12-acb7-c90cc683b22c',
              name: 'server1',
-             ip_addresses: [ '1.2.3.4' ],
+             ip_address: '1.2.3.4',
              vm?: true)
     end
     let(:resource2) do
       double('server2',
              id: '9e2364cf-7af4-4b85-93fd-1f03ee2ac865',
              name: 'server2',
-             ip_addresses: [ '4.3.2.1' ],
+             ip_address: '4.3.2.1',
              vm?: true)
     end
     let(:resources) { [resource1] }
@@ -242,7 +242,7 @@ describe Kitchen::Driver::Vra do
       double('server1',
              id: 'test_id',
              name: 'server1',
-             ip_addresses: [ '1.2.3.4' ],
+             ip_address: '1.2.3.4',
              vm?: true)
     end
 
@@ -330,24 +330,24 @@ describe Kitchen::Driver::Vra do
   end
 
   describe '#destroy' do
-    let(:resource_id)     { '8c1a833a-5844-4100-b58c-9cab3543c958' }
-    let(:state)           { { resource_id: resource_id } }
+    let(:deployment_id)     { '8c1a833a-5844-4100-b58c-9cab3543c958' }
+    let(:state)           { { deployment_id: deployment_id } }
     let(:vra_client)      { double('vra_client') }
-    let(:resources)       { double('resources') }
+    let(:deployments)       { double('resources') }
     let(:destroy_request) { double('destroy_request') }
     let(:resource) do
       double('server1',
-             id: resource_id,
+             deployment_id: deployment_id,
              name: 'server1',
-             ip_addresses: [ '5.6.7.8' ],
+             ip_address: '5.6.7.8',
              vm?: true)
     end
 
     before do
       allow(driver).to receive(:vra_client).and_return(vra_client)
       allow(driver).to receive(:wait_for_request).with(destroy_request)
-      allow(vra_client).to receive(:resources).and_return(resources)
-      allow(resources).to receive(:by_id).and_return(resource)
+      allow(vra_client).to receive(:deployments).and_return(deployments)
+      allow(deployments).to receive(:by_id).and_return(resource)
       allow(resource).to receive(:destroy).and_return(destroy_request)
       allow(destroy_request).to receive(:id).and_return('6da65982-7c33-4e6e-b346-fdf4bcbf01ab')
     end
@@ -355,19 +355,19 @@ describe Kitchen::Driver::Vra do
     context 'when the resource is not created' do
       let(:state) { {} }
       it 'does not look up the resource if no resource ID exists' do
-        expect(vra_client.resources).not_to receive(:by_id)
+        expect(vra_client.deployments).not_to receive(:by_id)
         driver.destroy(state)
       end
     end
 
     it 'looks up the resource record' do
-      expect(vra_client.resources).to receive(:by_id).with(resource_id).and_return(resource)
+      expect(vra_client.deployments).to receive(:by_id).with(deployment_id).and_return(resource)
       driver.destroy(state)
     end
 
     context 'when the resource record cannot be found' do
       it 'does not raise an exception' do
-        allow(vra_client.resources).to receive(:by_id).with(resource_id).and_raise(Vra::Exception::NotFound)
+        allow(vra_client.deployments).to receive(:by_id).with(deployment_id).and_raise(Vra::Exception::NotFound)
         expect { driver.destroy(state) }.not_to raise_error
       end
     end
@@ -400,7 +400,7 @@ describe Kitchen::Driver::Vra do
       allow(driver).to receive(:vra_client).and_return(vra_client)
       allow(vra_client).to receive(:catalog).and_return(catalog)
       allow(catalog).to receive(:request).and_return(catalog_request)
-      %i[cpus= memory= requested_for= lease_days= notes= subtenant_id= set_parameter].each do |method|
+      %i[subtenant_id= set_parameter].each do |method|
         allow(catalog_request).to receive(method)
       end
     end
@@ -410,33 +410,22 @@ describe Kitchen::Driver::Vra do
       driver.catalog_request
     end
 
-    it 'sets all the standard parameters on the request' do
-      expect(catalog_request).to receive(:cpus=).with(config[:cpus])
-      expect(catalog_request).to receive(:memory=).with(config[:memory])
-      expect(catalog_request).to receive(:requested_for=).with(config[:requested_for])
-      expect(catalog_request).to receive(:lease_days=).with(config[:lease_days])
-      expect(catalog_request).to receive(:notes=).with(config[:notes])
-      expect(catalog_request).to receive(:subtenant_id=).with(config[:subtenant_id])
-      driver.catalog_request
-    end
-
     context 'when option parameters are not supplied' do
       let(:config) do
         {
-          base_url:      'https://vra.corp.local',
-          username:      'myuser',
-          password:      'mypassword',
-          tenant:        'mytenant',
-          verify_ssl:    true,
-          cpus:          2,
-          memory:        2048,
-          requested_for: 'override_user@corp.local'
+          base_url:        'https://vra.corp.local',
+          username:        'myuser',
+          password:        'mypassword',
+          tenant:          'mytenant',
+          verify_ssl:      true,
+          project_id:      '6ba69375-79d5-42c3-a099-7d32739f71a7',
+          image_mapping:   'VRA-nc-lnx-ce8.4-Docker',
+          flavor_mapping:  'Small',
+          version:         1
         }
       end
 
       it 'does not attempt to set params on the catalog_request' do
-        expect(catalog_request).not_to receive(:lease_days=)
-        expect(catalog_request).not_to receive(:notes=)
         expect(catalog_request).not_to receive(:subtenant_id=)
         driver.catalog_request
       end
@@ -445,13 +434,15 @@ describe Kitchen::Driver::Vra do
     context 'when extra parameters are set' do
       let(:config) do
         {
-          base_url:      'https://vra.corp.local',
-          username:      'myuser',
-          password:      'mypassword',
-          tenant:        'mytenant',
-          verify_ssl:    true,
-          cpus:          2,
-          memory:        2048,
+          base_url:         'https://vra.corp.local',
+          username:         'myuser',
+          password:         'mypassword',
+          tenant:           'mytenant',
+          verify_ssl:       true,
+          project_id:       '6ba69375-79d5-42c3-a099-7d32739f71a7',
+          image_mapping:    'VRA-nc-lnx-ce8.4-Docker',
+          flavor_mapping:   'Small',
+          version:          1,
           extra_parameters: { 'key1' => { type: 'string', value: 'value1' },
                               'key2' => { type: 'integer', value: 123 } }
         }

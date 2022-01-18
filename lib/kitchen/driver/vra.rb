@@ -36,6 +36,11 @@ module Kitchen
       default_config :password, nil
       required_config :base_url
       required_config :tenant
+      required_config :project_id
+      required_config :image_mapping
+      required_config :flavor_mapping
+      required_config :version
+ 
       default_config :catalog_id, nil
       default_config :catalog_name, nil
 
@@ -45,14 +50,9 @@ module Kitchen
       default_config :request_timeout, 600
       default_config :request_refresh_rate, 2
       default_config :server_ready_retries, 1
-      default_config :cpus, 1
-      default_config :memory, 1024
-      default_config :shirt_size, nil
-      default_config :requested_for do |driver|
-        driver[:username]
+      default_config :deployment_name do |driver|
+        driver&.instance&.platform&.name
       end
-      default_config :lease_days, nil
-      default_config :notes, nil
       default_config :cache_credentials, false
       default_config :extra_parameters, {}
       default_config :private_key_path do
@@ -116,15 +116,15 @@ module Kitchen
       end
 
       def create(state)
-        return if state[:resource_id]
+        return if state[:deployment_id]
 
         server = request_server
-        state[:resource_id] = server.id
+        state[:deployment_id] = server.deployment_id
         state[:hostname]    = hostname_for(server)
         state[:ssh_key]     = config[:private_key_path] unless config[:private_key_path].nil?
 
         wait_for_server(state, server)
-        info("Server #{server.id} (#{server.name}) ready.")
+        info("Server #{server.deployment_id} (#{server.name}) ready.")
       end
 
       def hostname_for(server)
@@ -133,9 +133,9 @@ module Kitchen
           return config[:dns_suffix] ? "#{server.name}.#{config[:dns_suffix]}" : server.name
         end
 
-        ip_address = server.ip_addresses.first
+        ip_address = server.ip_address
         if ip_address.nil?
-          warn("Server #{server.id} has no IP address. Falling back to server name (#{server.name})...")
+          warn("Server #{server.deployment_id} has no IP address. Falling back to server name (#{server.name})...")
           server.name
         else
           ip_address
@@ -144,13 +144,15 @@ module Kitchen
 
       def request_server
         info('Building vRA catalog request...')
-        submitted_request = catalog_request.submit
-        info("Catalog request #{submitted_request.id} submitted.")
 
-        wait_for_request(submitted_request)
-        raise "The vRA request failed: #{submitted_request.completion_details}" if submitted_request.failed?
+        deployment_request = catalog_request.submit
 
-        servers = submitted_request.resources.select(&:vm?)
+        info("Catalog request #{deployment_request.id} submitted.")
+
+        wait_for_request(deployment_request)
+        raise "The vRA request failed: #{deployment_request.completion_details}" if deployment_request.failed?
+
+        servers = deployment_request.resources.select(&:vm?)
         raise 'The vRA request created more than one server. The catalog blueprint should only return one.' if servers.size > 1
         raise 'the vRA request did not create any servers.' if servers.size.zero?
 
@@ -184,12 +186,12 @@ module Kitchen
       end
 
       def destroy(state)
-        return if state[:resource_id].nil?
+        return if state[:deployment_id].nil?
 
         begin
-          server = vra_client.resources.by_id(state[:resource_id])
+          server = vra_client.deployments.by_id(state[:deployment_id])
         rescue ::Vra::Exception::NotFound
-          warn("No server found with ID #{state[:resource_id]}, assuming it has been destroyed already.")
+          warn("No server found with ID #{state[:deployment_id]}, assuming it has been destroyed already.")
           return
         end
 
@@ -208,6 +210,7 @@ module Kitchen
       end
 
       def catalog_request # rubocop:disable Metrics/MethodLength
+
         unless config[:catalog_name].nil?
           info('Fetching Catalog ID by Catalog Name')
           response =  vra_client.catalog.fetch_catalog_items(config[:catalog_name])
@@ -219,14 +222,15 @@ module Kitchen
           end
         end
 
-        catalog_request = vra_client.catalog.request(config[:catalog_id])
+        deployment_params = {
+          image_mapping: config[:image_mapping],
+          flavor_mapping: config[:flavor_mapping],
+          name: config[:deployment_name],
+          project_id: config[:project_id],
+          version: config[:version]
+        }
 
-        catalog_request.cpus          = config[:cpus]
-        catalog_request.memory        = config[:memory]
-        catalog_request.shirt_size    = config[:shirt_size]	unless config[:shirt_size].nil?
-        catalog_request.requested_for = config[:requested_for]
-        catalog_request.lease_days    = config[:lease_days]    unless config[:lease_days].nil?
-        catalog_request.notes         = config[:notes]         unless config[:notes].nil?
+        catalog_request = vra_client.catalog.request(config[:catalog_id], deployment_params)
 
         unless config[:subtenant_name].nil?
           info('Fetching Subtenant ID by Subtenant Name')
@@ -266,6 +270,7 @@ module Kitchen
         last_status = ''
         wait_time   = config[:request_timeout]
         sleep_time  = config[:request_refresh_rate]
+
         Timeout.timeout(wait_time) do
           loop do
             request.refresh

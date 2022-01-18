@@ -50,7 +50,7 @@ If you don't want to explicitly specify username and password in the kitchen.yml
     $ export VRA_USER_NAME='myuser@corp.local'
     $ export VRA_USER_PASSWORD='mypassword'
 
-Then configure your platforms. Either a catalog_id or a catalog_name is required for each platform. If both catalog_id and catalog_name are mentioned in .kitchen.yml then catalog_name would be used to derive the catalog_id and this catalog_id would override the catalog_id being passed in .kitchen.yml. In the below example as can be seen we are using catalog_id for centos6 driver while catalog_name for the centos7 driver just to demonstrate that we can use either of the two.
+Then configure your platforms. You will need to specify project_id, image_mapping, flavor_mapping and version for the platform. image_mapping specifies the OS image for a machine and the flavor_mapping specifies the CPU count and RAM of the machine. Either a catalog_id or a catalog_name is required for each platform. If both catalog_id and catalog_name are mentioned in .kitchen.yml then catalog_name would be used to derive the catalog_id and this catalog_id would override the catalog_id being passed in .kitchen.yml. In the below example as can be seen we are using catalog_id for centos6 driver while catalog_name for the centos7 driver just to demonstrate that we can use either of the two.
 
 
 ```yaml
@@ -58,22 +58,25 @@ platforms:
   - name: centos6
     driver:
       catalog_id: e9db1084-d1c6-4c1f-8e3c-eb8f3dc574f9
+      project_id: 6ba69375-79d5-42c3-a099-7d32739f71a9
+      image_mapping: SQL 2016
+      flavor_mapping: Small
+      version: 1
   - name: centos7
     driver:
       catalog_name: my_catalog_name
+      project_id: 6ba69375-79d5-42c3-a099-7d32739f71a9
+      image_mapping: VRA-nc-lnx-ce8.4-Docker
+      flavor_mapping: Small
+      version: 1
 ```
 
 
 
 Other options that you can set include:
 
- * **lease_days**: number of days to request for a lease, if your catalog item / blueprint requires it
  * **request_timeout**: amount of time, in seconds, to wait for a vRA request to complete. Default is 600 seconds.
  * **server_ready_retries**: Number of times to retry the "waiting for server to be ready" check. In some cases, this will error out immediately due to DNS propagation issues, etc. Setting this to a number greater than 0 will retry the `wait_until_ready` method with a growing sleep in between each attempt. Defaults to 1. Set to 0 to disable any retrying of the `wait_until_ready` method.
- * **cpus**: number of CPUs the host should have
- * **memory**: amount of RAM, in MB, the host should have
- * **shirt_size**: This parameter corresponds to shirt size option of vRA available on blueprint like ValueSet.Large, ValueSet.Small etc. As shirt size is a combination of memory and RAM, hence while using this no need to use cpus and memory parameter. This shirt size option helps in standardizing the sizing available for end users
- * **requested_for**: the vRA login ID to list as the owner of this resource. Defaults to the vRA username configured in the `driver` section.
  * **subtenant_id**: the Business Group ID to list as the owner. This is required if the catalog item is a shared/global item; we are unable to determine the subtenant_id from the catalog, and vRA requires it to be set on every request.
  * **subtenant_name**: the Business Group Name as the owner. This can be passed instead of subtenant_id and would act as a more friendly name. subtenant_id would be internally retrieved based on the provided subtenant_name. In case both subtenant_id and subtenant_name are passed, subtenant_name would take the precendence and would try to retrieve subtenant_id based on subtenant_name passed.
  * **private_key_path**: path to the SSH private key to use when logging in. Defaults to '~/.ssh/id_rsa' or '~/.ssh/id_dsa', preferring the RSA key. Only applies to instances where SSH transport is used; i.e., does not apply to Windows hosts with the WinRM transport configured.
@@ -86,13 +89,16 @@ These settings can be set globally under the top-level `driver` section, or they
 ```yaml
 driver:
   name: vra
-  cpus: 1
 
 platforms:
   - name: small
     driver:
       catalog_name: my_catalog_name_small
       catalog_id: 8a189191-fea6-43eb-981e-ee0fa40f8f57
+      project_id: 6ba69375-79d5-42c3-a099-7d32739f71a9
+      image_mapping: SQL 2016
+      flavor_mapping: Small
+      version: 1
       extra_parameters:
         mycustompropname:
           type: string
@@ -104,7 +110,10 @@ platforms:
     driver:
       catalog_name: my_catalog_name_large
       catalog_id: 1d7c6122-18fa-4ed6-bd13-8a33b6c6ed50
-      cpus: 2
+      project_id: 6ba69375-79d5-42c3-a099-7d32739f71a9
+      image_mapping: VRA-nc-lnx-ce8.4-Docker
+      flavor_mapping: Large
+      version: 1
       subtenant_name: my_subtenant_name
       extra_parameters:
         mycustompropname:
@@ -119,7 +128,7 @@ platforms:
 
 Author:: Chef Partner Engineering (<partnereng@chef.io>)
 
-Copyright:: Copyright (c) 2015-2019 Chef Software, Inc.
+Copyright:: Copyright (c) 2022 Chef Software, Inc.
 
 License:: Apache License, Version 2.0
 
