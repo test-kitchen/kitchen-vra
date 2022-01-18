@@ -26,7 +26,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'rack', '~> 1.6' unless RUBY_VERSION.index('2.0.').nil?
   spec.add_dependency 'ffi-yajl', '~> 2.2.3' unless RUBY_VERSION.index('2.0.').nil?
   spec.add_development_dependency 'bundler', '>= 1.7'
-  spec.add_development_dependency 'github_changelog_generator'
   spec.add_development_dependency 'rake',      '~> 10.0'
   spec.add_development_dependency 'rspec',     '~> 3.2'
   spec.add_development_dependency 'simplecov', '~> 0.10'
