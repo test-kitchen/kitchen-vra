@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'A Test Kitchen driver for VMware vRealize Automation (vRA)'
   spec.description   = spec.summary
   spec.homepage      = 'https://github.com/chef-partners/kitchen-vra'
-  spec.license       = 'Apache 2.0'
+  spec.license       = 'Apache-2.0'
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = []

@@ -1,8 +1,14 @@
 # Change Log
 
-## [v2.6.0](https://github.com/chef-partners/kitchen-vra/tree/v2.6.0)
+## [v2.7.1](https://github.com/chef-partners/kitchen-vra/tree/v2.7.1)
 
-[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.5.0...v2.6.0)
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.7.0...v2.7.1)
+
+- Pin vmware-vra gem dep to < 3 to prevent pulling in the new release
+
+## [v2.7.0](https://github.com/chef-partners/kitchen-vra/tree/v2.7.0)
+
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.6.0...v2.7.0)
 
 - Accept shirt size option available in blueprint as input in kitchen.yml 
 
