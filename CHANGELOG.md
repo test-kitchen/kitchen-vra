@@ -1,5 +1,11 @@
 # Change Log
 
+## [v3.0.0](https://github.com/chef-partners/kitchen-vra/tree/v3.0.0)
+
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.7.1...v3.0.0)
+
+- kitchen-vra now supports VMware vRealize Automation 8. See the readme of kitchen.ci driver documentation for new configuration options necessary for use with vRA 8. If you need support for vRA 7 make sure to pin to an earlier release.
+
 ## [v2.7.1](https://github.com/chef-partners/kitchen-vra/tree/v2.7.1)
 
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.7.0...v2.7.1)
