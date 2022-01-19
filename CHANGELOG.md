@@ -1,5 +1,11 @@
 # Change Log
 
+## [v3.0.1](https://github.com/chef-partners/kitchen-vra/tree/v3.0.1)
+
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.0.0...v3.0.1)
+
+- Updated the rack gem dependency to allow for modern releases of rack.
+
 ## [v3.0.0](https://github.com/chef-partners/kitchen-vra/tree/v3.0.0)
 
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.7.1...v3.0.0)
