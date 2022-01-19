@@ -7,11 +7,11 @@ require "kitchen/driver/vra_version"
 Gem::Specification.new do |spec|
   spec.name          = "kitchen-vra"
   spec.version       = Kitchen::Driver::VRA_VERSION
-  spec.authors       = ["Chef Partner Engineering"]
-  spec.email         = ["partnereng@chef.io"]
+  spec.authors       = ["Chef Commmunity Tools Team"]
+  spec.email         = ["oss@chef.io"]
   spec.summary       = "A Test Kitchen driver for VMware vRealize Automation (vRA)"
   spec.description   = spec.summary
-  spec.homepage      = "https://github.com/chef-partners/kitchen-vra"
+  spec.homepage      = "https://github.com/test-kitchen/kitchen-vra"
   spec.license       = "Apache-2.0"
 
   spec.files         = `git ls-files -z`.split("\x0")
