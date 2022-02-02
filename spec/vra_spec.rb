@@ -446,8 +446,8 @@ describe Kitchen::Driver::Vra do
       end
 
       it "sets extra parmeters" do
-        expect(catalog_request).to receive(:set_parameters).with("key1", type: "string", value: "value1")
-        expect(catalog_request).to receive(:set_parameters).with("key2", type: "integer", value: 123)
+        expect(catalog_request).to receive(:set_parameters).with("key1", {type: "string", value: "value1"})
+        expect(catalog_request).to receive(:set_parameters).with("key2", {type: "integer", value: 123})
         driver.catalog_request
       end
     end
