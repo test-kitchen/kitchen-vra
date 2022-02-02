@@ -50,7 +50,7 @@ If you don't want to explicitly specify username and password in the kitchen.yml
     $ export VRA_USER_NAME='myuser@corp.local'
     $ export VRA_USER_PASSWORD='mypassword'
 
-Then configure your platforms. You will need to specify project_id, image_mapping, flavor_mapping and version for the platform. image_mapping specifies the OS image for a machine and the flavor_mapping specifies the CPU count and RAM of the machine. Either a catalog_id or a catalog_name is required for each platform. If both catalog_id and catalog_name are mentioned in .kitchen.yml then catalog_name would be used to derive the catalog_id and this catalog_id would override the catalog_id being passed in .kitchen.yml. In the below example as can be seen we are using catalog_id for centos6 driver while catalog_name for the centos7 driver just to demonstrate that we can use either of the two.
+Then configure your platforms. You will need to specify project_id, image_mapping, flavor_mapping for the platform. image_mapping specifies the OS image for a machine and the flavor_mapping specifies the CPU count and RAM of the machine. You can specify or skip providing version. If version is not provided the latest version will be fetched automatically and used. Either a catalog_id or a catalog_name is required for each platform. If both catalog_id and catalog_name are mentioned in .kitchen.yml then catalog_name would be used to derive the catalog_id and this catalog_id would override the catalog_id being passed in .kitchen.yml. In the below example as can be seen we are using catalog_id for centos6 driver while catalog_name for the centos7 driver just to demonstrate that we can use either of the two.
 
 
 ```yaml
@@ -68,7 +68,6 @@ platforms:
       project_id: 6ba69375-79d5-42c3-a099-7d32739f71a9
       image_mapping: VRA-nc-lnx-ce8.4-Docker
       flavor_mapping: Small
-      version: 1
 ```
 
 
