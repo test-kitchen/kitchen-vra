@@ -1,5 +1,14 @@
 # Change Log
 
+## [v3.1.0](https://github.com/chef-partners/kitchen-vra/tree/v3.1.0)
+
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.0.1...v3.1.0)
+
+- Move usage documentation from the readme to the kitchen.ci website
+- Make the version configuration optional
+- Remove the bundler dev dep
+- Update the gemspec for the new maintainer of this project
+
 ## [v3.0.1](https://github.com/chef-partners/kitchen-vra/tree/v3.0.1)
 
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.0.0...v3.0.1)
