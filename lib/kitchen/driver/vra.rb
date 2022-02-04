@@ -39,8 +39,8 @@ module Kitchen
       required_config :project_id
       required_config :image_mapping
       required_config :flavor_mapping
-      required_config :version
 
+      default_config :version, nil
       default_config :catalog_id, nil
       default_config :catalog_name, nil
 
