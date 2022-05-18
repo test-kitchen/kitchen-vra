@@ -12,15 +12,21 @@ gem 'kitchen-vra'
 
 And then execute:
 
-    $ bundle
+```shell
+bundle
+```
 
 Or install it yourself as:
 
-    $ gem install kitchen-vra
+```shell
+gem install kitchen-vra
+```
 
 Or even better, install it via ChefDK:
 
-    $ chef gem install kitchen-vra
+```shell
+chef gem install kitchen-vra
+```
 
 ## Configuration
 
@@ -37,7 +43,7 @@ License:: Apache License, Version 2.0
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License. You may obtain a copy of the License at
 
-```
+```text
 http://www.apache.org/licenses/LICENSE-2.0
 ```
 
@@ -50,7 +56,7 @@ and limitations under the License.
 
 We'd love to hear from you if this doesn't work in your vRA environment. Please log a GitHub issue, or even better, submit a Pull Request with a fix!
 
-1. Fork it ( https://github.com/chef-partners/kitchen-vra/fork )
+1. Fork it ( <https://github.com/chef-partners/kitchen-vra/fork> )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

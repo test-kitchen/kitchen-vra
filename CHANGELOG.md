@@ -31,7 +31,7 @@
 
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.6.0...v2.7.0)
 
-- Accept shirt size option available in blueprint as input in kitchen.yml 
+- Accept shirt size option available in blueprint as input in kitchen.yml
 
 ## [v2.5.0](https://github.com/chef-partners/kitchen-vra/tree/v2.5.0)
 
@@ -46,6 +46,7 @@
 - Accept subtenant name as input in kitchen.yml [\#28](https://github.com/chef-partners/kitchen-vra/pull/28) ([vinuphilip](https://github.com/vinuphilip))
 
 ## [v2.4.0](https://github.com/chef-partners/kitchen-vra/tree/v2.4.0) (2018-01-22)
+
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.3.0...v2.4.0)
 
 **Merged pull requests:**
@@ -53,6 +54,7 @@
 - Kitchen vRA enahancements [\#26](https://github.com/chef-partners/kitchen-vra/pull/26) ([rupeshpatel88](https://github.com/rupeshpatel88))
 
 ## [v2.3.0](https://github.com/chef-partners/kitchen-vra/tree/v2.3.0) (2017-07-14)
+
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.2.0...v2.3.0)
 
 **Merged pull requests:**
@@ -61,6 +63,7 @@
 - Updates for travis and rubocop [\#23](https://github.com/chef-partners/kitchen-vra/pull/23) ([jjasghar](https://github.com/jjasghar))
 
 ## [v2.2.0](https://github.com/chef-partners/kitchen-vra/tree/v2.2.0) (2017-02-15)
+
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.1.0...v2.2.0)
 
 **Merged pull requests:**
@@ -68,6 +71,7 @@
 - Vra cache creds [\#16](https://github.com/chef-partners/kitchen-vra/pull/16) ([michaelschlies](https://github.com/michaelschlies))
 
 ## [v2.1.0](https://github.com/chef-partners/kitchen-vra/tree/v2.1.0) (2017-02-13)
+
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v2.0.0...v2.1.0)
 
 **Closed issues:**
@@ -81,6 +85,7 @@
 - Add support for a DNS suffix appended to server.name [\#19](https://github.com/chef-partners/kitchen-vra/pull/19) ([jeremymv2](https://github.com/jeremymv2))
 
 ## [v2.0.0](https://github.com/chef-partners/kitchen-vra/tree/v2.0.0) (2016-12-15)
+
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v1.3.0...v2.0.0)
 
 **Closed issues:**
@@ -93,6 +98,7 @@
 - fix travis notifications [\#11](https://github.com/chef-partners/kitchen-vra/pull/11) ([adamleff](https://github.com/adamleff))
 
 ## [v1.3.0](https://github.com/chef-partners/kitchen-vra/tree/v1.3.0) (2016-01-25)
+
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v1.2.0...v1.3.0)
 
 **Closed issues:**
@@ -105,6 +111,7 @@
 - Capping the retry delay when waiting for a server to 30 seconds [\#10](https://github.com/chef-partners/kitchen-vra/pull/10) ([adamleff](https://github.com/adamleff))
 
 ## [v1.2.0](https://github.com/chef-partners/kitchen-vra/tree/v1.2.0) (2015-11-26)
+
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v1.1.0...v1.2.0)
 
 **Closed issues:**
@@ -117,6 +124,7 @@
 - Update README.md [\#4](https://github.com/chef-partners/kitchen-vra/pull/4) ([trisharia](https://github.com/trisharia))
 
 ## [v1.1.0](https://github.com/chef-partners/kitchen-vra/tree/v1.1.0) (2015-10-13)
+
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v1.0.0...v1.1.0)
 
 **Closed issues:**
@@ -128,6 +136,7 @@
 - optional use\_dns [\#3](https://github.com/chef-partners/kitchen-vra/pull/3) ([stevehedrick](https://github.com/stevehedrick))
 
 ## [v1.0.0](https://github.com/chef-partners/kitchen-vra/tree/v1.0.0) (2015-08-12)
+
 **Merged pull requests:**
 
 - Initial release, working in VMware HOL lab, tests passing [\#1](https://github.com/chef-partners/kitchen-vra/pull/1) ([adamleff](https://github.com/adamleff))
