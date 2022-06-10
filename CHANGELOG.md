@@ -1,5 +1,12 @@
 # Change Log
 
+## [v3.2.0](https://github.com/chef-partners/kitchen-vra/tree/v3.2.0)
+
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.1.0...v3.2.0)
+
+- Support for Ruby 3.1
+- Github workflow improvements
+
 ## [v3.1.0](https://github.com/chef-partners/kitchen-vra/tree/v3.1.0)
 
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.0.1...v3.1.0)
