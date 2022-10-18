@@ -73,7 +73,7 @@ module Kitchen
         config[:password] = config[:password] || ENV["VRA_USER_PASSWORD"]
         c_load if config[:username].nil? && config[:password].nil?
 
-        config[:username] = ask("Enter Username: e.g. username@domain") if config[:username].nil? || force_change
+        config[:username] = ask("Enter Username: e.g. username") if config[:username].nil? || force_change
         config[:password] = ask("Enter password: ") { |q| q.echo = "*" } if config[:password].nil? || force_change
         c_save if config[:cache_credentials]
       end
