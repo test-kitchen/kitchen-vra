@@ -1,5 +1,11 @@
 # Change Log
 
+## [v3.2.1](https://github.com/chef-partners/kitchen-vra/tree/v3.2.1)
+
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.2.0...v3.2.1)
+
+- Updated username example when prompt ask for username [\#57](https://github.com/chef-partners/kitchen-vra/pull/57) ([sanjain-progress](https://github.com/sanjain-progress))
+
 ## [v3.2.0](https://github.com/chef-partners/kitchen-vra/tree/v3.2.0)
 
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.1.0...v3.2.0)
