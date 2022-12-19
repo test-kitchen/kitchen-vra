@@ -66,8 +66,8 @@ module Kitchen
       default_config :dns_suffix, nil
 
       deprecate_config_for :tenant, Util.outdent!("
-        In vRA8.x, the 'tenant' configuration is no longer required for the authentication,
-        instead, please make advantage of the domain configuration.".dup)
+        In vRA 8.x, the 'tenant' configuration is no longer relevant for authentication.
+        Please use the 'domain' configuration in its place.".dup)
 
       def name
         "vRA"
