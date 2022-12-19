@@ -36,7 +36,7 @@ describe Kitchen::Driver::Vra do
       base_url:        "https://vra.corp.local",
       username:        "myuser",
       password:        "mypassword",
-      tenant:          "mytenant",
+      domain:          "mytenant.corp.com",
       project_id:      "6ba69375-79d5-42c3-a099-7d32739f71a7",
       image_mapping:   "VRA-nc-lnx-ce8.4-Docker",
       flavor_mapping:  "Small",
@@ -415,7 +415,7 @@ describe Kitchen::Driver::Vra do
           base_url:        "https://vra.corp.local",
           username:        "myuser",
           password:        "mypassword",
-          tenant:          "mytenant",
+          domain:          "domain.corp.com",
           verify_ssl:      true,
           project_id:      "6ba69375-79d5-42c3-a099-7d32739f71a7",
           image_mapping:   "VRA-nc-lnx-ce8.4-Docker",
@@ -435,7 +435,7 @@ describe Kitchen::Driver::Vra do
           base_url:         "https://vra.corp.local",
           username:         "myuser",
           password:         "mypassword",
-          tenant:           "mytenant",
+          domain:           "mydomain.corp.com",
           verify_ssl:       true,
           project_id:       "6ba69375-79d5-42c3-a099-7d32739f71a7",
           image_mapping:    "VRA-nc-lnx-ce8.4-Docker",
@@ -458,7 +458,7 @@ describe Kitchen::Driver::Vra do
       expect(Vra::Client).to receive(:new).with(base_url:   config[:base_url],
                                                 username:   config[:username],
                                                 password:   config[:password],
-                                                tenant:     config[:tenant],
+                                                domain:     config[:domain],
                                                 verify_ssl: config[:verify_ssl])
       driver.vra_client
     end
