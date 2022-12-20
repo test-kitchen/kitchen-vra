@@ -35,11 +35,12 @@ module Kitchen
       default_config :username, nil
       default_config :password, nil
       required_config :base_url
-      required_config :tenant
+      required_config :domain
       required_config :project_id
       required_config :image_mapping
       required_config :flavor_mapping
 
+      default_config :tenant, nil
       default_config :version, nil
       default_config :catalog_id, nil
       default_config :catalog_name, nil
@@ -63,6 +64,10 @@ module Kitchen
       end
       default_config :use_dns, false
       default_config :dns_suffix, nil
+
+      deprecate_config_for :tenant, Util.outdent!("
+        In vRA 8.x, the 'tenant' configuration is no longer relevant for authentication.
+        Please use the 'domain' configuration in its place.".dup)
 
       def name
         "vRA"
@@ -257,7 +262,7 @@ module Kitchen
           base_url:   config[:base_url],
           username:   config[:username],
           password:   config[:password],
-          tenant:     config[:tenant],
+          domain:     config[:domain],
           verify_ssl: config[:verify_ssl]
         )
       rescue => _e
