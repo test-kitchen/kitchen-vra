@@ -1,5 +1,11 @@
 # Change Log
 
+## [v3.3.0](https://github.com/chef-partners/kitchen-vra/tree/v3.3.0)
+
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.2.1...v3.3.0)
+
+- Replaced the tenant attribute with the domain attribute [\#59](https://github.com/chef-partners/kitchen-vra/pull/59) ([ashiqueps](https://github.com/ashiqueps))
+
 ## [v3.2.1](https://github.com/chef-partners/kitchen-vra/tree/v3.2.1)
 
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.2.0...v3.2.1)
