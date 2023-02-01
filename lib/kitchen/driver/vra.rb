@@ -45,8 +45,6 @@ module Kitchen
       default_config :catalog_id, nil
       default_config :catalog_name, nil
 
-      default_config :subtenant_id, nil
-      default_config :subtenant_name, nil
       default_config :verify_ssl, true
       default_config :request_timeout, 600
       default_config :request_refresh_rate, 2
@@ -218,13 +216,17 @@ module Kitchen
       def catalog_request # rubocop:disable Metrics/MethodLength
         unless config[:catalog_name].nil?
           info("Fetching Catalog ID by Catalog Name")
-          response =  vra_client.catalog.fetch_catalog_items(config[:catalog_name])
-          parsed_json = JSON.parse(response.body)
+          catalog_items = vra_client.catalog.fetch_catalog_items(config[:catalog_name])
           begin
-            config[:catalog_id] = parsed_json["content"][0]["catalogItemId"]
+            config[:catalog_id] = catalog_items[0].id
+            info("Using Catalog with ID: #{catalog_items[0].id}")
           rescue
-            puts "Unable to retrieve Catalog ID from Catalog Name: #{config[:catalog_name]}"
+            error("Unable to retrieve Catalog ID from Catalog Name: #{config[:catalog_name]}")
           end
+        end
+
+        if config[:catalog_id].nil?
+          raise Kitchen::InstanceFailure, "Unable to create deployment without a valid catalog"
         end
 
         deployment_params = {
@@ -236,18 +238,6 @@ module Kitchen
         }
 
         catalog_request = vra_client.catalog.request(config[:catalog_id], deployment_params)
-
-        unless config[:subtenant_name].nil?
-          info("Fetching Subtenant ID by Subtenant Name")
-          response = vra_client.fetch_subtenant_items(config[:tenant], config[:subtenant_name])
-          parsed_json = JSON.parse(response.body)
-          begin
-            config[:subtenant_id] = parsed_json["content"][0]["id"]
-          rescue
-            puts "Unable to retrieve Subtenant ID from Subtenant Name: #{config[:subtenant_name]}"
-          end
-        end
-        catalog_request.subtenant_id = config[:subtenant_id] unless config[:subtenant_id].nil?
 
         config[:extra_parameters].each do |key, value_data|
           catalog_request.set_parameters(key, value_data)
