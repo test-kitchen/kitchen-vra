@@ -41,9 +41,9 @@ describe Kitchen::Driver::Vra do
       image_mapping:   "VRA-nc-lnx-ce8.4-Docker",
       flavor_mapping:  "Small",
       verify_ssl:      true,
-      subtenant_id:    "160b473a-0ec9-473d-8156-28dd96c0b6b7",
       use_dns:         false,
       deployment_name: "test-instance",
+      catalog_id:      "1536b95d-68fe-3c68-9417-46ed24bee3ef",
     }
   end
 
@@ -399,7 +399,7 @@ describe Kitchen::Driver::Vra do
       allow(driver).to receive(:vra_client).and_return(vra_client)
       allow(vra_client).to receive(:catalog).and_return(catalog)
       allow(catalog).to receive(:request).and_return(catalog_request)
-      %i{subtenant_id= set_parameter}.each do |method|
+      %i{catalog_id= set_parameter}.each do |method|
         allow(catalog_request).to receive(method)
       end
     end
@@ -420,11 +420,12 @@ describe Kitchen::Driver::Vra do
           project_id:      "6ba69375-79d5-42c3-a099-7d32739f71a7",
           image_mapping:   "VRA-nc-lnx-ce8.4-Docker",
           flavor_mapping:  "Small",
+          catalog_id:      "2kabc423-af89-56fc-990a-82fab34ed12",
         }
       end
 
       it "does not attempt to set params on the catalog_request" do
-        expect(catalog_request).not_to receive(:subtenant_id=)
+        expect(catalog_request).not_to receive(:set_parameters)
         driver.catalog_request
       end
     end
@@ -440,6 +441,7 @@ describe Kitchen::Driver::Vra do
           project_id:       "6ba69375-79d5-42c3-a099-7d32739f71a7",
           image_mapping:    "VRA-nc-lnx-ce8.4-Docker",
           flavor_mapping:   "Small",
+          catalog_id:      "2kabc423-af89-56fc-990a-82fab34ed12",
           extra_parameters: { "key1" => { type: "string", value: "value1" },
                               "key2" => { type: "integer", value: 123 } },
         }
