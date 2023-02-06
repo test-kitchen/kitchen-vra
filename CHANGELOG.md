@@ -1,5 +1,11 @@
 # Change Log
 
+## [v3.3.1](https://github.com/chef-partners/kitchen-vra/tree/v3.3.1)
+
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.3.0...v3.3.1)
+
+- Fixed the issue with catalog lookup using catalog_name config [\#61](https://github.com/chef-partners/kitchen-vra/pull/61) ([ashiqueps](https://github.com/ashiqueps))
+
 ## [v3.3.0](https://github.com/chef-partners/kitchen-vra/tree/v3.3.0)
 
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.2.1...v3.3.0)
