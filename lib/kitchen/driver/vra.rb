@@ -49,8 +49,9 @@ module Kitchen
       default_config :request_timeout, 600
       default_config :request_refresh_rate, 2
       default_config :server_ready_retries, 1
+      default_config :unique_name, false
       default_config :deployment_name do |driver|
-        driver&.instance&.platform&.name
+         driver&.instance&.platform&.name
       end
       default_config :cache_credentials, false
       default_config :extra_parameters, {}
@@ -152,6 +153,9 @@ module Kitchen
         deployment_request = catalog_request.submit
 
         info("Catalog request #{deployment_request.id} submitted.")
+        if config[:unique_name]
+          info("Deployment name is deployment_#{deployment_request.id}")
+        end
 
         wait_for_request(deployment_request)
         raise "The vRA request failed: #{deployment_request.completion_details}" if deployment_request.failed?
@@ -225,23 +229,34 @@ module Kitchen
           end
         end
 
+
         if config[:catalog_id].nil?
           raise Kitchen::InstanceFailure, "Unable to create deployment without a valid catalog"
         end
-
-        deployment_params = {
+        if config[:unique_name]
+         deployment_params = {
+          image_mapping: config[:image_mapping],
+          flavor_mapping: config[:flavor_mapping],
+          name: nil,
+          project_id: config[:project_id],
+          version: config[:version],
+         }
+        else
+         deployment_params = {
           image_mapping: config[:image_mapping],
           flavor_mapping: config[:flavor_mapping],
           name: config[:deployment_name],
           project_id: config[:project_id],
           version: config[:version],
-        }
-
+         }
+        end
         catalog_request = vra_client.catalog.request(config[:catalog_id], deployment_params)
 
         config[:extra_parameters].each do |key, value_data|
           catalog_request.set_parameters(key, value_data)
         end
+
+
 
         catalog_request
       end
