@@ -51,7 +51,7 @@ module Kitchen
       default_config :server_ready_retries, 1
       default_config :unique_name, false
       default_config :deployment_name do |driver|
-         driver&.instance&.platform&.name
+        driver&.instance&.platform&.name
       end
       default_config :cache_credentials, false
       default_config :extra_parameters, {}
@@ -229,34 +229,32 @@ module Kitchen
           end
         end
 
-
         if config[:catalog_id].nil?
           raise Kitchen::InstanceFailure, "Unable to create deployment without a valid catalog"
         end
+        
         if config[:unique_name]
-         deployment_params = {
-          image_mapping: config[:image_mapping],
-          flavor_mapping: config[:flavor_mapping],
-          name: nil,
-          project_id: config[:project_id],
-          version: config[:version],
-         }
-        else
-         deployment_params = {
-          image_mapping: config[:image_mapping],
-          flavor_mapping: config[:flavor_mapping],
-          name: config[:deployment_name],
-          project_id: config[:project_id],
-          version: config[:version],
-         }
+          deployment_params = {
+            image_mapping: config[:image_mapping],
+            flavor_mapping: config[:flavor_mapping],
+            name: nil,
+            project_id: config[:project_id],
+            version: config[:version],
+          }
+          else
+          deployment_params = {
+            image_mapping: config[:image_mapping],
+            flavor_mapping: config[:flavor_mapping],
+            name: config[:deployment_name],
+            project_id: config[:project_id],
+            version: config[:version],
+          }
         end
         catalog_request = vra_client.catalog.request(config[:catalog_id], deployment_params)
 
         config[:extra_parameters].each do |key, value_data|
           catalog_request.set_parameters(key, value_data)
         end
-
-
 
         catalog_request
       end
