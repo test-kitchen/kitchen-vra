@@ -232,7 +232,7 @@ module Kitchen
         if config[:catalog_id].nil?
           raise Kitchen::InstanceFailure, "Unable to create deployment without a valid catalog"
         end
-        
+
         if config[:unique_name]
           deployment_params = {
             image_mapping: config[:image_mapping],
@@ -241,7 +241,7 @@ module Kitchen
             project_id: config[:project_id],
             version: config[:version],
           }
-          else
+        else
           deployment_params = {
             image_mapping: config[:image_mapping],
             flavor_mapping: config[:flavor_mapping],
