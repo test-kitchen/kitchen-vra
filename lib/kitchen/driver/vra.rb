@@ -233,23 +233,15 @@ module Kitchen
           raise Kitchen::InstanceFailure, "Unable to create deployment without a valid catalog"
         end
 
-        if config[:unique_name]
-          deployment_params = {
-            image_mapping: config[:image_mapping],
-            flavor_mapping: config[:flavor_mapping],
-            name: nil,
-            project_id: config[:project_id],
-            version: config[:version],
-          }
-        else
-          deployment_params = {
-            image_mapping: config[:image_mapping],
-            flavor_mapping: config[:flavor_mapping],
-            name: config[:deployment_name],
-            project_id: config[:project_id],
-            version: config[:version],
-          }
+        deployment_params = {
+          image_mapping: config[:image_mapping],
+          flavor_mapping: config[:flavor_mapping],
+          project_id: config[:project_id],
+          version: config[:version],
+        }.tap do |h|
+          h[:name] = config[:deployment_name] unless config[:unique_name]
         end
+
         catalog_request = vra_client.catalog.request(config[:catalog_id], deployment_params)
 
         config[:extra_parameters].each do |key, value_data|
