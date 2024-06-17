@@ -1,5 +1,11 @@
 # Change Log
 
+## [v3.3.2](https://github.com/chef-partners/kitchen-vra/tree/v3.3.2)
+
+[Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.3.1...v3.3.2)
+
+- This change helps in getting unique name of a deployment. The new deployement name will be deployment_deploymentId. We need to pass **unique_name** as true(unique_name: true) in the driver configuration.
+
 ## [v3.3.1](https://github.com/chef-partners/kitchen-vra/tree/v3.3.1)
 
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.3.0...v3.3.1)
