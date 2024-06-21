@@ -30,5 +30,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec",     "~> 3.2"
   spec.add_development_dependency "simplecov", "~> 0.10"
   spec.add_development_dependency "webmock",   "~> 3.14"
-  spec.add_development_dependency "chefstyle", "~> 2.2.1"
+  spec.add_development_dependency "chefstyle"
 end

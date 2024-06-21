@@ -1,17 +1,32 @@
 ---
-name: Publish
+name: release-please
 
-'on':
-  release:
-    types: [published]
+"on":
+  push:
+    branches: [main]
 
 jobs:
-  build:
+  release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Build and publish gem
-        uses: jstastny/publish-gem-to-github@master
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.PORTER_GITHUB_TOKEN }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        if: ${{ steps.release.outputs.release_created }}
+
+      - name: Build and publish to GitHub Package
+        uses: actionshub/publish-gem-to-github@main
+        if: ${{ steps.release.outputs.release_created }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           owner: ${{ secrets.OWNER }}
+
+      - name: Build and publish to RubyGems
+        uses: actionshub/publish-gem-to-rubygems@main
+        if: ${{ steps.release.outputs.release_created }}
+        with:
+          token: ${{ secrets.RUBYGEMS_API_KEY }}
