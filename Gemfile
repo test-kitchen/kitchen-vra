@@ -15,14 +15,6 @@ group :debug do
   gem "pry"
 end
 
-group :development do
-  gem "rake"
-  gem "rspec", "~> 3.2"
-  gem "simplecov"
-  gem "webmock"
-  gem "chefstyle"
-end
-
 group :chefstyle do
   gem "chefstyle"
 end
