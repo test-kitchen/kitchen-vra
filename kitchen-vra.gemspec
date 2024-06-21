@@ -26,9 +26,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency "highline"
   spec.add_dependency "rack", ">= 1.6", "< 4.0"
   spec.add_dependency "ffi-yajl", ">= 2.2.3", "< 2.5.0"
-  spec.add_development_dependency "rake",      "~> 13.0"
-  spec.add_development_dependency "rspec",     "~> 3.2"
-  spec.add_development_dependency "simplecov", "~> 0.10"
-  spec.add_development_dependency "webmock",   "~> 3.14"
-  spec.add_development_dependency "chefstyle"
 end
