@@ -25,5 +25,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "vmware-vra", "~> 3.0", ">= 3.2.0" # 3.0 required for vRA 8.x
   spec.add_dependency "highline"
   spec.add_dependency "rack", ">= 1.6", "< 4.0"
-  spec.add_dependency "ffi-yajl", ">= 2.2.3", "< 2.5.0"
+  spec.add_dependency "ffi-yajl", ">= 2.2.3", "< 3.1.0"
 end
