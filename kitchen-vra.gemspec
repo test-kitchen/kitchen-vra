@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = ">= 2.7"
+  spec.required_ruby_version = ">= 3.1"
 
   spec.add_dependency "test-kitchen"
   spec.add_dependency "vmware-vra", "~> 3.0", ">= 3.2.0" # 3.0 required for vRA 8.x
