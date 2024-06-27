@@ -1,5 +1,12 @@
 # Change Log
 
+## [3.3.3](https://github.com/test-kitchen/kitchen-vra/compare/v3.3.2...v3.3.3) (2024-06-27)
+
+
+### Bug Fixes
+
+* release please configs ([#69](https://github.com/test-kitchen/kitchen-vra/issues/69)) ([fa27fb1](https://github.com/test-kitchen/kitchen-vra/commit/fa27fb16997917b6e04e2f63de1c3ac5bcc920a2))
+
 ## [v3.3.2](https://github.com/chef-partners/kitchen-vra/tree/v3.3.2)
 
 [Full Changelog](https://github.com/chef-partners/kitchen-vra/compare/v3.3.1...v3.3.2)
