@@ -15,10 +15,6 @@ group :debug do
   gem "pry"
 end
 
-group :chefstyle do
-  gem "chefstyle"
-end
-
 group :cookstyle do
   gem "cookstyle"
 end
