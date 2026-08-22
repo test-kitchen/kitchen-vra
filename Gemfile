@@ -18,3 +18,7 @@ end
 group :chefstyle do
   gem "chefstyle"
 end
+
+group :cookstyle do
+  gem "cookstyle"
+end
