@@ -1,5 +1,7 @@
 # kitchen-vra
 
+[![Gem Version](https://badge.fury.io/rb/kitchen-vra.svg)](https://badge.fury.io/rb/kitchen-vra)
+
 A driver to allow Test Kitchen to consume vRealize Automation (vRA) resources to perform testing.
 
 ## Installation

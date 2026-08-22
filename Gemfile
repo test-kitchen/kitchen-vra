@@ -2,8 +2,7 @@
 
 source "https://rubygems.org"
 
-gemspec
-
+gemspec development_group: :test
 group :test do
   gem "rake"
   gem "kitchen-inspec"
@@ -15,6 +14,6 @@ group :debug do
   gem "pry"
 end
 
-group :chefstyle do
-  gem "chefstyle"
+group :cookstyle do
+  gem "cookstyle"
 end
