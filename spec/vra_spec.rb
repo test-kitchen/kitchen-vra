@@ -19,6 +19,8 @@
 #
 
 require "spec_helper"
+require "tmpdir"
+require "fileutils"
 require "kitchen/driver/vra"
 require "kitchen/provisioner/dummy"
 require "kitchen/transport/dummy"
@@ -507,6 +509,101 @@ describe Kitchen::Driver::Vra do
         request = double("request")
         allow(request).to receive(:refresh).and_raise(RuntimeError)
         expect { driver.wait_for_request(request) }.to raise_error(RuntimeError)
+      end
+    end
+  end
+
+  describe "credential caching" do
+    let(:cache_dir)  { Dir.mktmpdir("kitchen-vra-spec") }
+    let(:cache_file) { File.join(cache_dir, ".kitchen", "cached_vra") }
+
+    # c_save/c_load address the cache by a path relative to the working
+    # directory, so each example runs inside a throwaway directory.
+    around do |example|
+      Dir.chdir(cache_dir) { example.run }
+    end
+
+    after { FileUtils.remove_entry(cache_dir) }
+
+    describe "#c_save" do
+      it "creates the cache file" do
+        driver.c_save
+        expect(File.exist?(cache_file)).to be true
+      end
+
+      it "creates the .kitchen directory when it does not exist" do
+        expect { driver.c_save }.to change { Dir.exist?(File.join(cache_dir, ".kitchen")) }.from(false).to(true)
+      end
+
+      it "writes the file readable only by its owner" do
+        driver.c_save
+        expect(File.stat(cache_file).mode & 0o777).to eq(0o600)
+      end
+
+      it "does not write the password in the clear" do
+        driver.c_save
+        expect(File.read(cache_file)).not_to include("mypassword")
+      end
+    end
+
+    describe "#c_load" do
+      it "restores credentials written by #c_save" do
+        driver.c_save
+
+        reader = Kitchen::Driver::Vra.new(config.reject { |k, _v| %i{username password}.include?(k) })
+        allow(reader).to receive(:instance).and_return(instance)
+        reader.c_load
+
+        expect(reader[:username]).to eq("myuser")
+        expect(reader[:password]).to eq("mypassword")
+      end
+
+      it "does nothing when no cache file exists" do
+        driver.c_load
+        expect(driver[:username]).to eq("myuser")
+      end
+
+      it "refuses a cache written against a different base_url" do
+        driver.c_save
+
+        other = Kitchen::Driver::Vra.new(config.merge(base_url: "https://other.corp.local")
+                                               .reject { |k, _v| %i{username password}.include?(k) })
+        allow(other).to receive(:instance).and_return(instance)
+        expect(other).to receive(:warn).with(/Failed to load cached credentials/)
+        other.c_load
+
+        expect(other[:username]).to be_nil
+        expect(other[:password]).to be_nil
+      end
+
+      it "refuses a corrupted cache rather than returning garbage" do
+        driver.c_save
+        File.write(cache_file, File.read(cache_file).succ)
+
+        loader = Kitchen::Driver::Vra.new(config.reject { |k, _v| %i{username password}.include?(k) })
+        allow(loader).to receive(:instance).and_return(instance)
+        expect(loader).to receive(:warn).with(/Failed to load cached credentials/)
+        loader.c_load
+
+        expect(loader[:username]).to be_nil
+      end
+    end
+
+    describe "#check_config" do
+      it "uses the cache instead of prompting" do
+        driver.c_save
+
+        reader = Kitchen::Driver::Vra.new(config.reject { |k, _v| %i{username password}.include?(k) })
+        allow(reader).to receive(:instance).and_return(instance)
+        allow(ENV).to receive(:[]).and_call_original
+        allow(ENV).to receive(:[]).with("VRA_USER_NAME").and_return(nil)
+        allow(ENV).to receive(:[]).with("VRA_USER_PASSWORD").and_return(nil)
+        expect(reader).not_to receive(:ask)
+
+        reader.check_config
+
+        expect(reader[:username]).to eq("myuser")
+        expect(reader[:password]).to eq("mypassword")
       end
     end
   end

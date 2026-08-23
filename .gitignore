@@ -14,5 +14,6 @@
 mkmf.log
 .direnv/
 .envrc
-.ruby-versiondoc/
+.ruby-version
+doc/
 .yardoc

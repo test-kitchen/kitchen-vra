@@ -49,7 +49,7 @@ export VRA_USER_NAME='myuser@corp.local'
 export VRA_USER_PASSWORD='mypassword'
 ```
 
-Setting `cache_credentials: true` stores the credentials after a successful run so later runs do not prompt. This writes them to disk, so avoid it on shared machines.
+Setting `cache_credentials: true` stores the credentials after a successful run so later runs do not prompt. They are written to `.kitchen/cached_vra`, encrypted under a key derived from `base_url` and readable only by your user. Since `base_url` is not a secret, this hides the password from casual view rather than protecting it — treat the file as sensitive and avoid the option on shared machines.
 
 ## Quick Start
 

@@ -22,7 +22,8 @@ require "kitchen"
 require "highline/import"
 require "openssl" unless defined?(OpenSSL)
 require "base64" unless defined?(Base64)
-require "digest/sha1" unless defined?(Digest::SHA1)
+require "digest" unless defined?(Digest)
+require "fileutils" unless defined?(FileUtils)
 require "vra"
 require_relative "vra_version"
 
@@ -44,6 +45,18 @@ module Kitchen
     class Vra < Kitchen::Driver::Base # rubocop:disable Metrics/ClassLength
       kitchen_driver_api_version 2
       plugin_version Kitchen::Driver::VRA_VERSION
+
+      # Location of the credential cache, relative to the working directory.
+      CREDENTIALS_CACHE_FILE = ".kitchen/cached_vra"
+
+      # Cipher used for the credential cache. GCM is authenticated, so a cache
+      # written for a different +base_url+, or one that has been altered on
+      # disk, fails to decrypt rather than yielding garbage credentials.
+      CREDENTIALS_CIPHER = "aes-256-gcm"
+
+      # Marker for the cache file layout, so a later format change can reject
+      # old files instead of misreading them.
+      CREDENTIALS_CACHE_VERSION = "v1"
 
       default_config :username, nil
       default_config :password, nil
@@ -105,57 +118,92 @@ module Kitchen
         c_save if config[:cache_credentials]
       end
 
-      # Writes the resolved credentials to +.kitchen/cached_vra+.
+      # Writes the resolved credentials to {CREDENTIALS_CACHE_FILE}.
       #
-      # @note This does not currently work. The cipher is constructed as
-      #   +OpenSSL::Cipher.new("cip-her-aes")+, which is not a real algorithm
-      #   name, so this raises immediately and the bare +rescue+ turns it into
-      #   an "Unable to save credentials" message. Setting +cache_credentials+
-      #   therefore has no effect beyond printing that line.
+      # The file is obfuscated rather than secured: the key is derived from
+      # +base_url+, which is not a secret, so anyone holding both the file and
+      # the kitchen config can recover the credentials. It keeps passwords out
+      # of plain sight on disk; it is not a substitute for a secret store.
       #
       # @return [void]
       def c_save
-        cipher = OpenSSL::Cipher.new("cip-her-aes")
-        cipher.encrypt
-        cipher.key = Digest::SHA1.hexdigest(config[:base_url])
-        iv_user = cipher.random_iv
-        cipher.iv = iv_user
-        username = cipher.update(config[:username]) + cipher.final
-        iv_pwd = cipher.random_iv
-        cipher.iv = iv_pwd
-        password = cipher.update(config[:password]) + cipher.final
-        output = "#{Base64.encode64(iv_user).strip!}:#{Base64.encode64(username).strip!}:#{Base64.encode64(iv_pwd).strip!}:#{Base64.encode64(password).strip!}"
-        file = File.open(".kitchen/cached_vra", "w")
-        file.write(output)
-        file.close
-      rescue
-        puts "Unable to save credentials"
+        FileUtils.mkdir_p(File.dirname(CREDENTIALS_CACHE_FILE))
+        fields = [config[:username], config[:password]].flat_map { |value| encrypt_credential(value) }
+
+        File.open(CREDENTIALS_CACHE_FILE, File::WRONLY | File::CREAT | File::TRUNC, 0o600) do |file|
+          file.write(([CREDENTIALS_CACHE_VERSION] + fields).join(":"))
+        end
+        # The mode above only applies when the file is created, so narrow the
+        # permissions of a cache left behind by an earlier run as well.
+        File.chmod(0o600, CREDENTIALS_CACHE_FILE)
+      rescue => e
+        warn("Unable to save credentials to #{CREDENTIALS_CACHE_FILE}: #{e.message}")
       end
 
-      # Reads credentials back from +.kitchen/cached_vra+.
+      # Reads credentials back from {CREDENTIALS_CACHE_FILE}.
       #
-      # @note Fails for the same reason as {#c_save} -- the cipher name is not
-      #   valid -- so a cache is never successfully read. Since nothing ever
-      #   writes the file either, this is normally a no-op.
+      # A cache that cannot be decrypted -- a different +base_url+, a truncated
+      # or edited file, an older layout -- is reported and ignored, leaving the
+      # credentials unset so the caller falls through to prompting.
       #
       # @return [void]
       def c_load
-        if File.exist? ".kitchen/cached_vra"
-          encrypted = File.read(".kitchen/cached_vra")
-          iv_user = Base64.decode64(encrypted.split(":")[0] + '\n')
-          username = Base64.decode64(encrypted.split(":")[1] + "\n")
-          iv_pwd = Base64.decode64(encrypted.split(":")[2] + "\n")
-          password = Base64.decode64(encrypted.split(":")[3] + "\n")
-          cipher = OpenSSL::Cipher.new("cip-her-aes")
-          cipher.decrypt
-          cipher.key = Digest::SHA1.hexdigest(config[:base_url])
-          cipher.iv = iv_user
-          config[:username] = cipher.update(username) + cipher.final
-          cipher.iv = iv_pwd
-          config[:password] = cipher.update(password) + cipher.final
-        end
-      rescue
-        puts "Failed to load cached credentials"
+        return unless File.exist?(CREDENTIALS_CACHE_FILE)
+
+        version, *fields = File.read(CREDENTIALS_CACHE_FILE).strip.split(":")
+        raise "unrecognized cache format" unless version == CREDENTIALS_CACHE_VERSION && fields.length == 6
+
+        # Decrypt both before assigning either, so a partially readable cache
+        # cannot leave half the credentials set.
+        username = decrypt_credential(*fields[0, 3])
+        password = decrypt_credential(*fields[3, 3])
+
+        config[:username] = username
+        config[:password] = password
+      rescue => e
+        warn("Failed to load cached credentials from #{CREDENTIALS_CACHE_FILE}: #{e.message}")
+      end
+
+      # Encrypts one credential for the cache file.
+      #
+      # @param value [String] the credential to encrypt
+      # @return [Array<String>] Base64-encoded IV, authentication tag, and
+      #   ciphertext, in that order
+      def encrypt_credential(value)
+        cipher = OpenSSL::Cipher.new(CREDENTIALS_CIPHER)
+        cipher.encrypt
+        cipher.key = credentials_key
+        iv = cipher.random_iv
+        encrypted = cipher.update(value.to_s) + cipher.final
+
+        [iv, cipher.auth_tag, encrypted].map { |part| Base64.strict_encode64(part) }
+      end
+
+      # Decrypts one credential from the cache file.
+      #
+      # @param iv [String] Base64-encoded initialization vector
+      # @param auth_tag [String] Base64-encoded GCM authentication tag
+      # @param encrypted [String] Base64-encoded ciphertext
+      # @return [String] the decrypted credential
+      # @raise [OpenSSL::Cipher::CipherError] if the key or tag does not match
+      def decrypt_credential(iv, auth_tag, encrypted)
+        cipher = OpenSSL::Cipher.new(CREDENTIALS_CIPHER)
+        cipher.decrypt
+        cipher.key = credentials_key
+        cipher.iv = Base64.strict_decode64(iv)
+        cipher.auth_tag = Base64.strict_decode64(auth_tag)
+
+        cipher.update(Base64.strict_decode64(encrypted)) + cipher.final
+      end
+
+      # Derives the cache key from +base_url+.
+      #
+      # SHA-256 is used for its digest length: {CREDENTIALS_CIPHER} requires a
+      # 32-byte key, which +Digest::SHA256.digest+ returns exactly.
+      #
+      # @return [String] a 32-byte key
+      def credentials_key
+        Digest::SHA256.digest(config[:base_url].to_s)
       end
 
       # Requests a deployment from vRA and waits until it can be logged into.
