@@ -10,6 +10,13 @@
 * Docs: rewrite README for new users and split contributor docs ([#80](https://github.com/test-kitchen/kitchen-vra/pull/80)) ([d9ebc45](https://github.com/test-kitchen/kitchen-vra/commit/d9ebc45))
 * Standardize renovate config and remove dependabot ([#81](https://github.com/test-kitchen/kitchen-vra/pull/81)) ([be552bd](https://github.com/test-kitchen/kitchen-vra/commit/be552bd))
 
+## [3.3.4](https://github.com/test-kitchen/kitchen-vra/compare/v3.3.3...v3.3.4) (2026-08-23)
+
+
+### Bug Fixes
+
+* make cache_credentials actually cache credentials ([#84](https://github.com/test-kitchen/kitchen-vra/issues/84)) ([8ef64d8](https://github.com/test-kitchen/kitchen-vra/commit/8ef64d8c41a0fe2d510f5bfa107f1a029b079c61))
+
 ## [3.3.3](https://github.com/test-kitchen/kitchen-vra/compare/v3.3.2...v3.3.3) (2024-06-27)
 
 ### Bug Fixes
