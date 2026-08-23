@@ -23,6 +23,6 @@ module Kitchen
   # Test Kitchen's driver plugins.
   module Driver
     # The version of the kitchen-vra gem.
-    VRA_VERSION = "3.3.3"
+    VRA_VERSION = "3.3.4"
   end
 end
