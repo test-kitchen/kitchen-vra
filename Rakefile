@@ -13,3 +13,21 @@ rescue LoadError
 end
 
 task default: %i{test style}
+
+begin
+  require "yard"
+
+  # Options and the file list live in .yardopts so that a bare `yard` from the
+  # command line produces exactly what `rake doc` does.
+  YARD::Rake::YardocTask.new(:doc)
+
+  desc "List anything in lib/ that is still undocumented"
+  task :doc_coverage do
+    sh "yard stats --list-undoc"
+  end
+rescue LoadError
+  desc "Generate YARD documentation (not installed)"
+  task :doc do
+    abort "YARD is not installed. Run: bundle install"
+  end
+end
