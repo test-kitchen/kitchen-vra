@@ -18,8 +18,11 @@
 # limitations under the License.
 #
 
+# Test Kitchen's top-level namespace.
 module Kitchen
+  # Test Kitchen's driver plugins.
   module Driver
+    # The version of the kitchen-vra gem.
     VRA_VERSION = "3.3.3"
   end
 end
