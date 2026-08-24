@@ -25,6 +25,7 @@ require "base64" unless defined?(Base64)
 require "digest" unless defined?(Digest)
 require "fileutils" unless defined?(FileUtils)
 require "vra"
+require "time" unless defined?(Time.now.iso8601)
 require_relative "vra_version"
 
 module Kitchen
@@ -45,6 +46,11 @@ module Kitchen
     class Vra < Kitchen::Driver::Base # rubocop:disable Metrics/ClassLength
       kitchen_driver_api_version 2
       plugin_version Kitchen::Driver::VRA_VERSION
+
+      # Deployment statuses vRA reports for a deployment that is up.
+      #
+      # @return [Array<String>]
+      LIVE_STATUSES = %w{CREATE_SUCCESSFUL}.freeze
 
       # Location of the credential cache, relative to the working directory.
       CREDENTIALS_CACHE_FILE = ".kitchen/cached_vra"
@@ -312,6 +318,41 @@ module Kitchen
             retry
           end
         end
+      end
+
+      # Reports what vRA currently thinks of the deployment.
+      #
+      # @param state [Hash] instance state naming the deployment
+      # @return [Hash] a Test Kitchen status hash, or the base implementation's
+      #   answer when there is no deployment or vRA does not know it
+      def status(state)
+        return super unless state[:deployment_id]
+
+        deployment = lookup_deployment(state[:deployment_id])
+        return super unless deployment
+
+        deployment_status = deployment.status.to_s
+        {
+          live: LIVE_STATUSES.include?(deployment_status),
+          state: deployment_status,
+          source: "driver",
+          resource_id: state[:deployment_id],
+          message: "vRA reports the deployment as #{deployment_status}",
+          checked_at: Time.now.utc.iso8601,
+        }
+      end
+
+      # Looks a deployment up without turning an unreachable vRA into a
+      # failure. A deployment that has already been destroyed answers with
+      # NotFound, which is a real answer rather than an error.
+      #
+      # @param deployment_id [String] the vRA deployment ID
+      # @return [Vra::Deployment, nil] the deployment, or nil when vRA does not
+      #   know it or cannot be reached
+      def lookup_deployment(deployment_id)
+        vra_client.deployments.by_id(deployment_id)
+      rescue ::StandardError
+        nil
       end
 
       # Destroys the vRA deployment, if one exists.
