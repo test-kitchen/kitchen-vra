@@ -10,6 +10,19 @@
 * Docs: rewrite README for new users and split contributor docs ([#80](https://github.com/test-kitchen/kitchen-vra/pull/80)) ([d9ebc45](https://github.com/test-kitchen/kitchen-vra/commit/d9ebc45))
 * Standardize renovate config and remove dependabot ([#81](https://github.com/test-kitchen/kitchen-vra/pull/81)) ([be552bd](https://github.com/test-kitchen/kitchen-vra/commit/be552bd))
 
+## [3.4.0](https://github.com/test-kitchen/kitchen-vra/compare/v3.3.4...v3.4.0) (2026-08-24)
+
+
+### Features
+
+* implement the driver status hook ([#88](https://github.com/test-kitchen/kitchen-vra/issues/88)) ([933e254](https://github.com/test-kitchen/kitchen-vra/commit/933e25445d1a231490ef977cbbfd9644aa16022d))
+
+
+### Bug Fixes
+
+* constrain the test-kitchen dependency ([#86](https://github.com/test-kitchen/kitchen-vra/issues/86)) ([ac5f32d](https://github.com/test-kitchen/kitchen-vra/commit/ac5f32d1dd5eb132c91a3fda58ee41f778148245))
+* drop the unused rack runtime dependency ([#89](https://github.com/test-kitchen/kitchen-vra/issues/89)) ([b68f1fd](https://github.com/test-kitchen/kitchen-vra/commit/b68f1fdd4dfc6d1a0c37320f8b099b5d0ca19c8a))
+
 ## [3.3.4](https://github.com/test-kitchen/kitchen-vra/compare/v3.3.3...v3.3.4) (2026-08-23)
 
 
