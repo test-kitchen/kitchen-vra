@@ -10,10 +10,6 @@ group :test do
   gem "webmock"
 end
 
-group :debug do
-  gem "pry"
-end
-
 group :docs do
   gem "yard"
 end
