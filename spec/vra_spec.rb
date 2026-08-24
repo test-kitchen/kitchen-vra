@@ -330,6 +330,64 @@ describe Kitchen::Driver::Vra do
     end
   end
 
+  describe "#status" do
+    let(:deployments) { double("deployments") }
+    let(:vra_client)  { double("vra_client", deployments: deployments) }
+
+    before { allow(driver).to receive(:vra_client).and_return(vra_client) }
+
+    it "reports an unknown status when state names no deployment" do
+      expect(driver.status({})).to include(live: nil, state: "unknown")
+    end
+
+    it "reports an unknown status when vRA has never heard of the deployment" do
+      allow(deployments).to receive(:by_id).with("gone")
+        .and_raise(Vra::Exception::NotFound.new("nope"))
+
+      expect(driver.status(deployment_id: "gone")).to include(state: "unknown")
+    end
+
+    it "reports a successfully created deployment as live" do
+      allow(deployments).to receive(:by_id).with("dep-1")
+        .and_return(double(status: "CREATE_SUCCESSFUL"))
+
+      expect(driver.status(deployment_id: "dep-1")).to include(
+        live: true, state: "CREATE_SUCCESSFUL", source: "driver",
+        resource_id: "dep-1"
+      )
+    end
+
+    it "stamps when the check happened" do
+      allow(deployments).to receive(:by_id)
+        .and_return(double(status: "CREATE_SUCCESSFUL"))
+
+      expect(driver.status(deployment_id: "dep-1")[:checked_at])
+        .to match(/\A\d{4}-\d{2}-\d{2}T/)
+    end
+
+    it "reports a deployment still building as not live" do
+      allow(deployments).to receive(:by_id)
+        .and_return(double(status: "CREATE_INPROGRESS"))
+
+      expect(driver.status(deployment_id: "dep-1"))
+        .to include(live: false, state: "CREATE_INPROGRESS")
+    end
+
+    it "names a failed deployment rather than reporting a bare false" do
+      allow(deployments).to receive(:by_id)
+        .and_return(double(status: "CREATE_FAILED"))
+
+      expect(driver.status(deployment_id: "dep-1"))
+        .to include(live: false, state: "CREATE_FAILED")
+    end
+
+    it "reports an unknown status when vRA cannot be reached" do
+      allow(deployments).to receive(:by_id).and_raise(StandardError.new("boom"))
+
+      expect(driver.status(deployment_id: "dep-1")).to include(state: "unknown")
+    end
+  end
+
   describe "#destroy" do
     let(:deployment_id)     { "8c1a833a-5844-4100-b58c-9cab3543c958" }
     let(:state)           { { deployment_id: deployment_id } }
