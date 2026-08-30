@@ -1,0 +1,54 @@
+---
+# Test Kitchen configuration for exercising this driver against a real vRA
+# appliance. The unit and integration specs cover everything up to the socket;
+# this is how a change gets tried against vRA itself.
+#
+# Everything comes from the environment so that no site details or credentials
+# land in the repository:
+#
+#   export VRA_BASE_URL='https://vra.corp.local'
+#   export VRA_DOMAIN='corp.local'
+#   export VRA_PROJECT_ID='6ba69375-2d1e-4a5e-9e9b-1a1a3f0e6d4c'
+#   export VRA_CATALOG_NAME='Ubuntu Server'
+#   export VRA_IMAGE_MAPPING='Ubuntu 22.04'
+#   export VRA_FLAVOR_MAPPING='Small'
+#   export VRA_USER_NAME='myuser@corp.local'
+#   export VRA_USER_PASSWORD='mypassword'
+#
+#   bundle exec kitchen test
+#
+# The catalog item must provision exactly one VM. See CONTRIBUTING.md.
+driver:
+  name: vra
+  base_url: <%= ENV.fetch("VRA_BASE_URL", "https://vra.example.com") %>
+  domain: <%= ENV.fetch("VRA_DOMAIN", "example.com") %>
+  project_id: <%= ENV.fetch("VRA_PROJECT_ID", "00000000-0000-0000-0000-000000000000") %>
+  catalog_name: <%= ENV.fetch("VRA_CATALOG_NAME", "Ubuntu Server") %>
+  image_mapping: <%= ENV.fetch("VRA_IMAGE_MAPPING", "Ubuntu 22.04") %>
+  flavor_mapping: <%= ENV.fetch("VRA_FLAVOR_MAPPING", "Small") %>
+  verify_ssl: <%= ENV.fetch("VRA_VERIFY_SSL", "true") %>
+  use_dns: <%= ENV.fetch("VRA_USE_DNS", "false") %>
+  # Concurrent suites would otherwise share a deployment name.
+  unique_name: true
+  # vRA reports a deployment ready a little before the guest takes
+  # connections.
+  server_ready_retries: 5
+
+# The driver's job ends at a machine Test Kitchen can log in to, so there is
+# nothing to converge. Swap in cinc_infra to test a cookbook on top of it.
+provisioner:
+  name: dummy
+
+# Runs on the machine vRA built, over the transport, so a green run means the
+# deployment came up and Test Kitchen could log in to it -- which is the whole
+# of what this driver is responsible for.
+verifier:
+  name: shell
+  remote_exec: true
+  command: uname -a && cat /etc/os-release
+
+platforms:
+  - name: ubuntu-22.04
+
+suites:
+  - name: default
