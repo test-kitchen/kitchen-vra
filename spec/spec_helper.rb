@@ -18,16 +18,6 @@
 # limitations under the License.
 #
 
-# Start coverage before anything under lib/ is loaded, or the methods that run
-# at load time are reported as never run.
-if ENV["COVERAGE"]
-  require "simplecov"
-  SimpleCov.profiles.define "gem" do
-    command_name "Specs"
-  end
-  SimpleCov.start "gem"
-end
-
 require "webmock/rspec"
 require "tmpdir"
 require "fileutils"
