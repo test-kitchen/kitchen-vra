@@ -1,6 +1,18 @@
 require "bundler/gem_tasks"
 require "rspec/core/rake_task"
-RSpec::Core::RakeTask.new(:test)
+
+desc "Run the unit tests"
+RSpec::Core::RakeTask.new(:unit) do |task|
+  task.pattern = "spec/*_spec.rb"
+end
+
+desc "Drive the driver through Test Kitchen against a stubbed vRA"
+RSpec::Core::RakeTask.new(:integration) do |task|
+  task.pattern = "spec/integration/**/*_spec.rb"
+end
+
+desc "Run all the tests"
+task test: %i{unit integration}
 
 begin
   require "cookstyle/chefstyle"
