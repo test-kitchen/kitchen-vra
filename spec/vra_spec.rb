@@ -488,6 +488,28 @@ RSpec.describe Kitchen::Driver::Vra do
       expect(driver).to receive(:wait_for_request).with(destroy_request)
       driver.destroy(state)
     end
+
+    describe "the cached credentials" do
+      let(:cache_dir) { Dir.mktmpdir("kitchen-vra-spec") }
+
+      around { |example| Dir.chdir(cache_dir) { example.run } }
+      after  { FileUtils.remove_entry(cache_dir) }
+
+      it "removes the cache file left behind by a previous run" do
+        FileUtils.mkdir_p(".kitchen")
+        File.write(".kitchen/cached_vra", "cached")
+
+        driver.destroy(state)
+
+        expect(File.exist?(".kitchen/cached_vra")).to be false
+      end
+
+      it "does not claim to have removed a cache file that was never written" do
+        expect(driver).not_to receive(:info).with(/Removed.*cached/i)
+
+        driver.destroy(state)
+      end
+    end
   end
 
   describe "#catalog_request" do
@@ -604,6 +626,8 @@ RSpec.describe Kitchen::Driver::Vra do
   end
 
   describe "#vra_client" do
+    let(:client) { vra_client }
+
     it "sets up a client object" do
       expect(Vra::Client).to receive(:new).with(base_url:   config[:base_url],
         username:   config[:username],
@@ -614,11 +638,50 @@ RSpec.describe Kitchen::Driver::Vra do
     end
 
     it "builds the client once and hands the same one back" do
-      client = vra_client
       expect(Vra::Client).to receive(:new).once.and_return(client)
 
       expect(driver.vra_client).to eq(client)
       expect(driver.vra_client).to eq(client)
+    end
+
+    context "when cache_credentials is enabled" do
+      let(:config) { super().merge(cache_credentials: true) }
+
+      before { allow(driver).to receive(:c_save) }
+
+      it "does not prompt for credentials it already has" do
+        allow(Vra::Client).to receive(:new).and_return(client)
+        expect(driver).not_to receive(:ask)
+
+        driver.vra_client
+      end
+    end
+
+    context "when the client cannot be built" do
+      before do
+        allow(driver).to receive(:warn)
+        allow(driver).to receive(:check_config)
+      end
+
+      it "re-prompts for the credentials and tries once more" do
+        attempts = 0
+        allow(Vra::Client).to receive(:new) do
+          attempts += 1
+          raise ArgumentError, "Username and password are required" if attempts == 1
+
+          client
+        end
+
+        expect(driver.vra_client).to eq(client)
+        expect(driver).to have_received(:check_config).with(true)
+      end
+
+      it "raises rather than handing back something that is not a client" do
+        allow(Vra::Client).to receive(:new)
+          .and_raise(ArgumentError, "Username and password are required")
+
+        expect { driver.vra_client }.to raise_error(ArgumentError)
+      end
     end
   end
 

@@ -383,8 +383,10 @@ module Kitchen
         wait_for_request(destroy_request)
         info("Destroy request complete.")
 
-        File.delete(".kitchen/cached_vra") if File.exist?(".kitchen/cached_vra")
-        info("Removed cached file")
+        return unless File.exist?(CREDENTIALS_CACHE_FILE)
+
+        File.delete(CREDENTIALS_CACHE_FILE)
+        info("Removed the cached credentials in #{CREDENTIALS_CACHE_FILE}.")
       end
 
       # Builds the vRA catalog request for the configured blueprint.
@@ -431,21 +433,43 @@ module Kitchen
 
       # The vRA API client, built from the resolved credentials.
       #
-      # On any failure the credentials are re-prompted, on the assumption that
-      # what failed was authentication.
+      # Credentials are resolved once, when the client is first built. A
+      # failure to build it is assumed to be an authentication problem, so the
+      # credentials are asked for again and the client built a second time. A
+      # second failure is raised rather than swallowed.
       #
       # @return [Vra::Client]
+      # @raise [ArgumentError] if the credentials are still not usable after
+      #   re-prompting
       def vra_client
-        check_config config[:cache_credentials]
-        @client ||= ::Vra::Client.new(
-          base_url:   config[:base_url],
-          username:   config[:username],
-          password:   config[:password],
-          domain:     config[:domain],
-          verify_ssl: config[:verify_ssl]
-        )
-      rescue => _e
-        check_config true
+        @client ||= build_client
+      end
+
+      # Resolves the credentials and builds the client, asking for the
+      # credentials a second time if the first attempt fails.
+      #
+      # @return [Vra::Client]
+      # @raise [ArgumentError] if the second attempt fails as well
+      # @api private
+      def build_client
+        retried = false
+
+        begin
+          check_config(retried)
+          ::Vra::Client.new(
+            base_url:   config[:base_url],
+            username:   config[:username],
+            password:   config[:password],
+            domain:     config[:domain],
+            verify_ssl: config[:verify_ssl]
+          )
+        rescue => e
+          raise if retried
+
+          warn("Unable to build a vRA client: #{e.message}")
+          retried = true
+          retry
+        end
       end
 
       # Polls a vRA request until it completes or times out.
@@ -457,8 +481,6 @@ module Kitchen
       # @return [void]
       # @raise [Timeout::Error] if the request does not complete in time
       def wait_for_request(request)
-        # config = check_config config
-
         last_status = ""
         wait_time   = config[:request_timeout]
         sleep_time  = config[:request_refresh_rate]
