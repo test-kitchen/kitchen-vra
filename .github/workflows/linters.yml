@@ -1,5 +1,5 @@
 ---
-name: 'Test'
+name: 'Lint, Unit & Integration Tests'
 
 'on':
   pull_request:
@@ -7,3 +7,22 @@ name: 'Test'
 jobs:
   lint-unit:
     uses: test-kitchen/.github/.github/workflows/lint-unit.yml@main
+
+  kitchen-cli:
+    name: Test Kitchen CLI
+    runs-on: ubuntu-latest
+    needs: lint-unit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+      # The specs drive the driver in process. These two prove the gem is
+      # something the `kitchen` binary can find and load, that `name: vra`
+      # resolves to this driver, and that kitchen.yml is a config Test Kitchen
+      # accepts. Neither command contacts vRA.
+      - name: Resolve the driver through Test Kitchen
+        run: bundle exec kitchen list
+      - name: Report the configuration Test Kitchen resolved
+        run: bundle exec kitchen diagnose --all

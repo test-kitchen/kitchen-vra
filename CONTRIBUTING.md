@@ -23,44 +23,88 @@ bundle install
 
 ## Running the tests
 
-Run the unit tests and the style check together:
+Run everything CI runs -- style, unit tests and integration tests:
 
 ```sh
 bundle exec rake
 ```
 
-Run them individually:
+Or individually:
 
 ```sh
-bundle exec rake test    # RSpec unit tests
-bundle exec rake style   # Cookstyle / RuboCop
+bundle exec rake test         # unit and integration specs
+bundle exec rake unit         # unit specs only
+bundle exec rake integration  # integration specs only
+bundle exec rake style        # Cookstyle / Chefstyle
 ```
 
-To run a single spec file:
+To run a single spec file, or a single example:
 
 ```sh
-bundle exec rspec spec/kitchen/driver/vra_spec.rb
+bundle exec rspec spec/vra_spec.rb
+bundle exec rspec spec/vra_spec.rb:42
 ```
 
-Many style offenses can be corrected automatically:
+Many style offenses can be corrected automatically. Always pass `--chefstyle`:
+a bare `cookstyle` run applies the cookbook cops as well and reports a hundred
+offenses that do not apply to a gem.
 
 ```sh
-bundle exec cookstyle -a
+bundle exec cookstyle --chefstyle -a
 ```
 
-The unit tests stub the vRA client, so they do not contact an appliance and do
-not require credentials.
+### Unit tests
+
+`spec/vra_spec.rb` builds the driver directly and stubs the vmware-vra gem, so
+the unit tests are fast and need neither an appliance nor credentials. Stubs
+are verifying doubles checked against the real vmware-vra classes, so a rename
+in that gem fails the suite rather than passing against a method that no longer
+exists.
+
+### Integration tests
+
+`spec/integration` drives the driver the way `kitchen` drives it: a real
+`kitchen.yml` read by the real loader, the driver Test Kitchen resolves from
+`name: vra`, and `create`, `status` and `destroy` run against a vRA stubbed at
+the wire with WebMock.
+
+That covers the plugin lookup, the config merging Test Kitchen does before the
+driver sees a value, `required_config` validation, the lazy defaults that need
+an instance to resolve, and every line of vmware-vra that turns a catalog
+request into HTTP and an HTTP response back into a `Resource` -- none of which
+the unit tests reach.
+
+A vRA appliance cannot be stood up in CI, but everything on this side of the
+socket can be, so these run on every supported Ruby alongside the unit tests.
 
 ### Manual testing against vRA
 
-Changes that touch the catalog request or the deployment lifecycle should also be
-exercised against a real appliance, since the stubbed tests cannot catch
-API-level regressions. You will need a catalog item that provisions exactly one
-VM, and permission to request and delete it.
+Changes that touch the catalog request or the deployment lifecycle should also
+be tried against a real appliance, since a stub can only ever answer the way it
+was told to. You will need a catalog item that provisions exactly one VM, and
+permission to request and delete it.
 
-Set `VRA_USER_NAME` and `VRA_USER_PASSWORD` rather than putting credentials in
-`kitchen.yml`, and confirm in the vRA UI that `kitchen destroy` removed the
-deployment — a run that fails partway through can leave one behind.
+The `kitchen.yml` in the root of the repository is set up for exactly this. It
+takes everything from the environment, so no site details or credentials end up
+in the repository:
+
+```sh
+export VRA_BASE_URL='https://vra.corp.local'
+export VRA_DOMAIN='corp.local'
+export VRA_PROJECT_ID='6ba69375-2d1e-4a5e-9e9b-1a1a3f0e6d4c'
+export VRA_CATALOG_NAME='Ubuntu Server'
+export VRA_IMAGE_MAPPING='Ubuntu 22.04'
+export VRA_FLAVOR_MAPPING='Small'
+export VRA_USER_NAME='myuser@corp.local'
+export VRA_USER_PASSWORD='mypassword'
+
+bundle exec kitchen test
+```
+
+The suite verifies over the transport, so a green run means the deployment came
+up and Test Kitchen could log in to it. Afterwards, confirm in the vRA UI that
+`kitchen destroy` really removed the deployment -- a run that fails partway
+through can leave one behind.
 
 ## Submitting changes
 

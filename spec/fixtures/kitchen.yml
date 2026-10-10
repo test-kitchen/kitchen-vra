@@ -1,0 +1,35 @@
+---
+# The kitchen.yml the integration specs drive the driver through. It is a real
+# Test Kitchen config, loaded by the real loader, so anything Test Kitchen
+# would reject here fails the specs rather than a user's first run.
+driver:
+  name: vra
+  base_url: https://vra.example.com
+  domain: example.com
+  project_id: 6ba69375-79d5-42c3-a099-7d32739f71a7
+  image_mapping: Ubuntu 22.04
+  flavor_mapping: Small
+  catalog_id: 1536b95d-68fe-3c68-9417-46ed24bee3ef
+  version: "1"
+  username: kitchen
+  password: secret
+  verify_ssl: false
+  request_refresh_rate: 0
+  server_ready_retries: 0
+  private_key_path: /home/kitchen/.ssh/id_kitchen
+
+transport:
+  name: dummy
+  sleep: 0
+
+provisioner:
+  name: dummy
+
+verifier:
+  name: dummy
+
+platforms:
+  - name: ubuntu-22.04
+
+suites:
+  - name: default
